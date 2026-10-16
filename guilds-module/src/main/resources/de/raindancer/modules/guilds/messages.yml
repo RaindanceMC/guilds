@@ -98,7 +98,7 @@ guilds:
     own-removed: "<green>Your guild's <npc> is gone."
     not-placed: "<red>Your guild has no <npc> standing anywhere."
     already: "<red>Your guild already has a <npc>. <gray>/guild npc remove <kind> first, then place them here."
-    not-allowed: "<red>Only the leader and the officers place the guild's attendants."
+    not-allowed: "<red>Your rank may not place the guild's attendants. <gray>The leader gives ranks \"Place attendants\" on /guild → Ranks."
     not-here: "<red>You may not build here, so no attendant either."
     wait: "<red>A moment — the guild's attendants are still being read. Try again in a few seconds."
   vault:
