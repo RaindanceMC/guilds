@@ -3,7 +3,6 @@ package de.raindancer.modules.guilds;
 import de.raindancer.core.social.desk.ServiceDesk;
 import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildPermission;
-import de.raindancer.modules.guilds.model.Rank;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -15,8 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Which attendants each guild placed itself, one of each kind: the leader and the officers place them, anybody with
- * the rank permission too. Bookkeeping only — {@link GuildNpcPlacing} puts them in the world.
+ * Which attendants each guild placed itself, one of each kind: the leader places them, and every rank with
+ * the rank permission ("Place attendants" — officers have it unless their leader takes it away). Bookkeeping only — {@link GuildNpcPlacing} puts them in the world.
  */
 public final class GuildNpcs {
 
@@ -26,11 +25,7 @@ public final class GuildNpcs {
     private final Map<String, Map<ServiceDesk, Placed>> byGuild = new ConcurrentHashMap<>();
 
     public static boolean mayPlace(Guild guild, UUID player) {
-        if (guild.rankOf(player).isEmpty()) {
-            return false;
-        }
-        return guild.may(player, GuildPermission.PLACE_NPCS)
-                || guild.rankOf(player).map(Rank::id).filter(Rank.OFFICER::equals).isPresent();
+        return guild.rankOf(player).isPresent() && guild.may(player, GuildPermission.PLACE_NPCS);
     }
 
     public Optional<Placed> placed(String guild, ServiceDesk desk) {

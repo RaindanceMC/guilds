@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.18.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.18.1")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -120,6 +120,10 @@ public final class GuildsModule implements FlexModule {
                 if (raised > 0) {
                     context.log().info("{} guild rank(s) still on the old daily bank limits now have the new ones.", raised);
                 }
+            }
+            int officers = de.raindancer.modules.guilds.store.NpcPermissionMigration.run(database, System::currentTimeMillis);
+            if (officers > 0) {
+                context.log().info("{} officer rank(s) of older guilds may now place the guild's attendants.", officers);
             }
             loading.load();
         });
