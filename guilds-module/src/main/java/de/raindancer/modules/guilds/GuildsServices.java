@@ -39,5 +39,6 @@ public record GuildsServices(
         GuildChatService chat,
         PositionService positions,
         PerkService perks,
-        ShardService shards) {
+        ShardService shards,
+        GuildNpcPlacing npcs) {
 }

@@ -23,7 +23,8 @@ public enum GuildPermission {
     OFFICER_CHAT("Officer chat", Material.BELL, "Read and write the officers' channel."),
     VIEW_LOG("Read the log", Material.BOOK, "Read the guild's log and the bank's statement."),
     VAULT("Take from the vault", Material.ENDER_CHEST, "Take items out of the guild vault. Anybody may put things in."),
-    PERKS("Spend perk points", Material.NETHER_STAR, "Buy perks with the guild's points and take them back.");
+    PERKS("Spend perk points", Material.NETHER_STAR, "Buy perks with the guild's points and take them back."),
+    PLACE_NPCS("Place attendants", Material.ARMOR_STAND, "Place and remove the guild banker, the vault keeper and the guild enchanter.");
 
     private final String title;
     private final Material icon;

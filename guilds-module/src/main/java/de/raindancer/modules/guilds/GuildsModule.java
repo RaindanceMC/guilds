@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.17.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.18.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -211,9 +211,14 @@ public final class GuildsModule implements FlexModule {
         de.raindancer.core.content.enchant.EnchantUnlocks.provide(context.plugin(), shards);
         context.closeWith(() -> de.raindancer.core.content.enchant.EnchantUnlocks.retract(shards));
 
+        GuildNpcPlacing npcs = new GuildNpcPlacing(context.plugin(),
+                new de.raindancer.core.data.store.YamlStore(context.dataFolder().resolve("npcs.yml")));
+        npcs.load();
+        book.onDisband(npcs::disbanded);
+        context.listener(npcs);
         GuildsServices services = new GuildsServices(context.plugin(), server, context.core(), context.log(),
                 context.core().messages(), context.chat().brand(), settings::current, book, notifier, guilds, bank,
-                relations, xp, homes, chat, positions, perks, shards);
+                relations, xp, homes, chat, positions, perks, shards, npcs);
         SettingsStore<GuildNpcSettings> npcSettings = context.settings(GuildNpcSettings.class, GuildNpcSettings.DEFAULTS);
         GuildDesks.skins(npcSettings.current());
         npcSettings.onChange(GuildDesks::skins);
