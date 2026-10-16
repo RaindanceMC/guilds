@@ -431,6 +431,27 @@ public final class GuildCommand implements IGuildsCommand {
 
     // ------------------------------------------------------------------ staff
 
+    /** {@code /guild admin npc bank|vault|enchants} places one where staff stand; {@code npc remove} the nearest. */
+    private static void npc(GuildsServices live, CommandSender sender, String[] args) {
+        if (!(sender instanceof Player player)) {
+            live.messages().send(sender, "guilds.only-a-player");
+            return;
+        }
+        String which = args.length > 1 ? args[1] : "";
+        if (which.equalsIgnoreCase("remove")) {
+            live.messages().send(player, de.raindancer.core.social.desk.ServiceDesks.removeNearest(player)
+                    ? "guilds.npc.removed" : "guilds.npc.none");
+            return;
+        }
+        Optional<de.raindancer.core.social.desk.ServiceDesk> desk = de.raindancer.modules.guilds.GuildDesks.named(which);
+        if (desk.isEmpty()) {
+            live.messages().send(player, "guilds.usage.npc");
+            return;
+        }
+        de.raindancer.core.social.desk.ServiceDesks.place(player, desk.get());
+        live.messages().send(player, "guilds.npc.placed", "npc", desk.get().title());
+    }
+
     private static void admin(GuildsServices live, CommandSender sender, String[] args) {
         if (!sender.hasPermission(PermissionNodes.ADMIN)) {
             live.messages().send(sender, GuildOutcome.NOT_ALLOWED.messageKey());
@@ -440,6 +461,10 @@ public final class GuildCommand implements IGuildsCommand {
         String what = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
         if (what.equals("boost")) {
             boost(live, sender, staff, args);
+            return;
+        }
+        if (what.equals("npc")) {
+            npc(live, sender, args);
             return;
         }
         if (args.length < 2) {
@@ -539,10 +564,12 @@ public final class GuildCommand implements IGuildsCommand {
                 case "join", "apply", "info", "ally", "unally", "rival", "unrival", "accept", "decline" ->
                         live.book().all().forEach(guild -> options.add(guild.tag()));
                 case "joining" -> Arrays.stream(JoinMode.values()).forEach(mode -> options.add(mode.key()));
-                case "admin" -> options.addAll(List.of("disband", "rename", "xp", "give", "leader", "boost"));
+                case "admin" -> options.addAll(List.of("disband", "rename", "xp", "give", "leader", "boost", "npc"));
                 default -> {
                 }
             }
+        } else if (args.length == 3 && args[0].equalsIgnoreCase("admin") && args[1].equalsIgnoreCase("npc")) {
+            options.addAll(List.of("bank", "vault", "enchants", "remove"));
         } else if (args.length == 3 && args[0].equalsIgnoreCase("admin") && args[1].equalsIgnoreCase("boost")) {
             options.addAll(List.of("25", "50", "100", "off"));
         } else if (args.length == 4 && args[0].equalsIgnoreCase("admin") && args[1].equalsIgnoreCase("boost")) {

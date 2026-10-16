@@ -43,7 +43,7 @@
         <!-- 0.14.1: an own limit never lets its holder raise a whole rank past their rank's limit; the setter's limit re-checked under the lock. -->
         <!-- 0.15.0: higher daily bank limits by default — officers 10000, members 1000 (new keys bank.officer-daily-limit / bank.member-daily-limit); ranks of existing guilds still on the old 1000/100 are raised once. -->
         <!-- 0.16.0: no hourly cap on the experience a member earns their guild (setting xp.hourly-cap removed); size damping stays. -->
-        <plugin.version>0.16.0</plugin.version>
+        <plugin.version>0.17.0</plugin.version>
     </properties>
 
     <dependencies>

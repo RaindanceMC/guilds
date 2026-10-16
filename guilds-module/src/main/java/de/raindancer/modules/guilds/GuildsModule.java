@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.16.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.17.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -214,6 +214,12 @@ public final class GuildsModule implements FlexModule {
         GuildsServices services = new GuildsServices(context.plugin(), server, context.core(), context.log(),
                 context.core().messages(), context.chat().brand(), settings::current, book, notifier, guilds, bank,
                 relations, xp, homes, chat, positions, perks, shards);
+        SettingsStore<GuildNpcSettings> npcSettings = context.settings(GuildNpcSettings.class, GuildNpcSettings.DEFAULTS);
+        GuildDesks.skins(npcSettings.current());
+        npcSettings.onChange(GuildDesks::skins);
+        GuildDesks desks = new GuildDesks(() -> services);
+        desks.offer();
+        context.closeWith(desks::withdraw);
         guilds.extraMembers(perks::extraMembers);
         relations.extraAllies(perks::extraAllies);
         homes.travelPercent(perks::homeTravelPercent);

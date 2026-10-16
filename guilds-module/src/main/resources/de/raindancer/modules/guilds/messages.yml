@@ -89,6 +89,11 @@ guilds:
     race-head: "<gold>This week's guild race:"
     race-line: "<gray><white>#<place></white> <guild> <dark_gray>— <xp> experience"
     race-empty: "<gray>Nobody has earned anything yet this week. Be first."
+  npc:
+    placed: "<green>A <white><npc></white> stands here now. Members right click them. <gray>/guild admin npc remove takes them away."
+    removed: "<green>The nearest attendant is gone."
+    none: "<red>There is no attendant within four blocks of you."
+    no-bank: "<red>There is no bank on this server right now."
   vault:
     none: "<red>Your guild has no vault. <gray>Buy the Guild vault perk on <white>/guild perks</white>."
     full: "<red>The vault is full — what did not fit stays with you. <gray>More rows with the Guild vault perk."
@@ -115,7 +120,8 @@ guilds:
     joining: "<gray>/guild joining <invite|apply|open>"
     which-invitation: "<gray>You have <white><count></white> invitations — say which guild: /guild accept <guild>"
     style: "<gray>/guild style tag|name <colours…> [bold] [animated] <dark_gray>— e.g. /guild style tag gold #ff5500 bold · /guild style name reset. From guild level <level>."
-    admin: "<gray>/guild admin disband <guild> confirm · rename <guild> <name> · xp <guild> <amount> · give <guild> <amount> · leader <guild> <player> · boost <percent> <time>|off"
+    admin: "<gray>/guild admin disband <guild> confirm · rename <guild> <name> · xp <guild> <amount> · give <guild> <amount> · leader <guild> <player> · boost <percent> <time>|off · npc bank|vault|enchants|remove"
+    npc: "<gray>/guild admin npc bank|vault|enchants <dark_gray>— an attendant here <gray>· /guild admin npc remove <dark_gray>— the nearest"
     prestige: "<yellow>Prestige takes the guild back to level 1 for a star, perk points and a lasting bonus — perks and points stay. <gray>Type <white>/guild prestige confirm</white>."
     boost: "<gray>/guild admin boost <percent> <time> <dark_gray>— e.g. 50 2h · or <gray>/guild admin boost off"
   style-unreadable: "<red><problem> <gray>Colours are chat colours (gold, aqua…) or #hex codes."
