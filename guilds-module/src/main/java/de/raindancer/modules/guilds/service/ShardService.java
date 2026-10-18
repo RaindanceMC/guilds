@@ -52,11 +52,12 @@ public final class ShardService implements EnchantUnlocks.Source {
         return guilds.guildOf(player).map(guild -> shards.unlocked(guild.id().value(), enchantment)).orElse(false);
     }
 
-    /** Rain's enchantments the server has, in name order. */
+    /** Rain's enchantments the server has switched on, in name order. */
     public List<String> enchantments() {
         List<String> keys = new ArrayList<>();
         RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT).forEach(enchantment -> {
-            if (enchantment.getKey().getNamespace().equals(NAMESPACE)) {
+            if (enchantment.getKey().getNamespace().equals(NAMESPACE)
+                    && !CustomEnchantments.isSwitchedOff(enchantment.getKey().asString())) {
                 keys.add(enchantment.getKey().asString());
             }
         });
