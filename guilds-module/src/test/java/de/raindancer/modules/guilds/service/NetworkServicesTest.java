@@ -190,4 +190,20 @@ class NetworkServicesTest {
         assertThat(homes.set(player)).isEqualTo(GuildOutcome.SUCCESS);
         assertThat(book.guild(elves.id()).orElseThrow().home()).map(HomeSpot::server).contains("");
     }
+
+    @Test
+    @DisplayName("the guild tag is a tag players may take off in /cosmetics, under a name they understand")
+    void tagIsWearable() {
+        de.raindancer.core.ui.identity.NameBadges.clear();
+        GuildChatService chat = new GuildChatService(book, new GuildNotifier(server, messages), GuildsSettings.DEFAULTS);
+        chat.open();
+        try {
+            assertThat(de.raindancer.core.ui.identity.NameBadges.wearables())
+                    .extracting(de.raindancer.core.ui.identity.NameBadges.Wearable::label)
+                    .containsExactly("Guild tag");
+        } finally {
+            chat.close();
+            de.raindancer.core.ui.identity.NameBadges.clear();
+        }
+    }
 }

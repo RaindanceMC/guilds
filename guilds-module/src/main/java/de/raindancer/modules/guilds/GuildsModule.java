@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.19.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.20.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -242,7 +242,8 @@ public final class GuildsModule implements FlexModule {
         }, perks::unseal);
         book.onDisband(perks::forgetVault);
         // Prestige stars and the weekly crown, after the tag — its own badge, so whoever paints the tag need not know.
-        de.raindancer.core.ui.identity.NameBadges.register("guild-honours", player -> settings.current().tagInNames()
+        de.raindancer.core.ui.identity.NameBadges.register("guild-honours", "Guild stars and crown",
+                player -> settings.current().tagInNames()
                 ? book.guildOf(player).flatMap(perks::honours).map(text -> net.kyori.adventure.text.Component.text(text,
                         net.kyori.adventure.text.format.NamedTextColor.GOLD))
                 : java.util.Optional.empty());

@@ -107,7 +107,7 @@ public final class GuildChatService implements IGuildsService {
 
     private void badges(boolean on) {
         if (on) {
-            NameBadges.register(BADGE_OWNER, player -> book.guildOf(player).map(GuildNotifier::tag));
+            NameBadges.register(BADGE_OWNER, "Guild tag", player -> book.guildOf(player).map(GuildNotifier::tag));
         } else {
             NameBadges.unregister(BADGE_OWNER);
         }
