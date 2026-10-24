@@ -1,0 +1,35 @@
+id: guild-staff
+title: Guild administration
+summary: Staff tools for guilds — disband, rename, set experience or leader, give experience, boosts and attendants.
+intro: |
+  Guilds look after themselves until they do not. Then there is this.
+icon: COMMAND_BLOCK
+category: Staff
+order: 31
+module: guilds
+permission: rainsguilds.admin
+aliases: [guildadmin, guild-admin]
+keywords: [admin, disband, rename, xp, give, leader, boost, npc, attendant, event]
+related: [guilds, guild-levels, staff-tools]
+sections:
+  - question: What can staff do?
+    title: Overview
+    text: |
+      Everything under {cmd:/guild admin}: {cmd:/guild admin disband <guild> confirm}, {cmd:/guild admin rename <guild> <name>}, {cmd:/guild admin xp <guild> <amount>} (sets the total), {cmd:/guild admin give <guild> <amount>} (adds, counted as staff experience), {cmd:/guild admin leader <guild> <player>} (the player must be a member). All of it is written into the guild's log. {cmd:/guild admin disband} without <b>confirm</b> only warns.
+  - question: How do I run an experience boost?
+    title: Boost
+    text: |
+      {cmd:/guild admin boost <percent> <time>}, for example {cmd:/guild admin boost 50 2h}, starts it for everybody on the server and announces it. {cmd:/guild admin boost off} stops it. It adds to every member's earnings on top of the together bonus and perks (see {topic:guild-levels}).
+  - question: How do I place attendants?
+    title: Attendants
+    text: |
+      {cmd:/guild admin npc bank}, {cmd:/guild admin npc vault} or {cmd:/guild admin npc enchants} put a banker, vault keeper or guild enchanter where you stand — anybody's guild can talk to them. {cmd:/guild admin npc remove} removes the nearest one within four blocks. Skins are set under the guild attendants settings.
+  - question: Which permissions matter?
+    title: Permissions
+    text: |
+      <white>rainsguilds.use</white> — join guilds and use /guild (everybody). <white>rainsguilds.found</white> — found a guild (everybody). <white>rainsguilds.home.nowait</white> — no wait between guild home trips. <white>rainsguilds.admin</white> — all of /guild admin.
+  - question: What can I tune?
+    title: Settings
+    permission: rainscore.settings
+    text: |
+      {run:/settings} holds Guilds (founding price, names, ranks, levels, bank, home), Guild experience (what earns how much, together bonus, contracts, honours) and Guild attendants (skins). Changes apply at once.

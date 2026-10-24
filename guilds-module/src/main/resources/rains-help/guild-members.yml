@@ -1,0 +1,60 @@
+id: guild-members
+title: Joining, ranks and leaving
+summary: Invitations, applications, the rank ladder and its permissions, promotions, kicking, handing over the guild.
+intro: |
+  Every guild is a ladder. Everyone starts on the bottom rung and the interesting question is who holds the top.
+icon: LADDER
+category: Guilds & teams
+order: 2
+module: guilds
+aliases: [invite, accept, decline, join, apply, leave, kick, promote, demote, rank, ranks, leader, officer, succession]
+keywords: [invitation, application, member, recruit, permission, ladder, hand over, cap, full, open, motd]
+related: [guilds, guild-bank, guild-levels]
+sections:
+  - question: How do I join a guild?
+    title: Joining
+    text: |
+      Open {run:/guild list}, find a guild and click it. What happens depends on how it takes members: <b>anybody may join</b> (you are in), <b>players may apply</b> (the officers are asked), or <b>by invitation only</b>. You can also type {cmd:/guild join <tag>}. New members start on the lowest rank. You have to leave your current guild first.
+  - question: How do I invite somebody?
+    title: Inviting
+    text: |
+      {cmd:/guild invite <player>} — you need a rank with the <i>invite</i> permission. The player is asked in chat and finds it under invitations on the guild page; it runs out after {setting:guilds:invitation-hours|hours}. They answer with {cmd:/guild accept [guild]} or {cmd:/guild decline [guild]} (name the guild if they hold several invitations).
+  - question: What about applications?
+    title: Applications
+    text: |
+      In a guild that takes applications, officers with the <i>invite</i> permission are told when somebody applies, with buttons to accept or decline. They find them on the guild page under <b>Invite and applications</b> (click to let them in, right-click to decline). An application stays for {setting:guilds:application-days|days}. Applying again while one is waiting is "pestering".
+  - question: How many members can a guild have?
+    title: Size
+    text: |
+      A guild of level 1 holds {setting:guilds:levels.members-at-first} members, plus {setting:guilds:levels.members-per-level} for every level it gains{if:guilds:levels.most-members > 0}, at most {setting:guilds:levels.most-members} whatever the level{/if}. The Recruiter perk adds room (see {topic:guild-perks}). A full guild refuses new members until it levels up.
+  - question: How do I leave?
+    title: Leaving
+    text: |
+      {cmd:/guild leave}. A leader cannot just walk out of a guild with other people in it: hand it over first with {cmd:/guild leader <player>}. If you are the last member, leaving disbands it.
+  - question: How does the rank ladder work?
+    title: Ranks
+    text: |
+      A new guild has four ranks: <b>Leader</b>, <b>Officer</b>, <b>Member</b> and <b>Recruit</b>. Each rank has a weight (its place on the ladder) and a set of permissions. You may act on members of a <i>lower</i> rank only, and may hand out only ranks, and permissions, that sit below your own. The leader's rank cannot be changed or given away.
+      The guild may have up to {setting:guilds:most-ranks} ranks. The ranks page shows what each one may do.
+  - question: How do I promote or demote someone?
+    title: Promoting
+    text: |
+      {cmd:/guild promote <player>} moves them one step up the ladder, {cmd:/guild demote <player>} one down — you need the <i>promote and demote</i> permission and the target must rank below you. To give a specific rank: {cmd:/guild rank <player> <rank>} or click the member on the <b>Members</b> page and choose one. Nobody may be given a rank at or above your own.
+  - question: What can a rank be allowed to do?
+    title: Permissions
+    text: |
+      Fifteen permissions: invite players; kick members; promote and demote; take from the bank (up to a daily limit); pay from the bank (any sum); set the guild home; use the guild home; edit the guild; manage ranks; alliances and rivals; officer chat; read the log; take from the vault; spend perk points; place attendants.
+      New guilds give Officers nearly everything but the bank payouts, ranks management and perk points; Members may use the home, read the log, take (limited) bank money and use the vault; Recruits may only use the home.
+  - question: How do I make or change a rank?
+    title: Managing ranks
+    text: |
+      Guild page, <b>Ranks</b>. Click <b>New rank</b>, name it, and open it to switch permissions on or off (click each), rename it, set a daily bank limit, or move it up or down the ladder. Delete a rank only when nobody holds it and at least two remain. You need the <i>manage ranks</i> permission, and cannot touch a rank at or above your own, nor grant a permission you do not have yourself.
+  - question: How do I remove a member?
+    title: Kicking
+    text: |
+      {cmd:/guild kick <player>} — the <i>kick</i> permission and a higher rank than theirs. The member list also has a button (it asks first). They can be invited back.
+  - question: How do I hand the guild over?
+    title: Leadership
+    text: |
+      {cmd:/guild leader <player>} — only the leader, to a member. Only they can give it back. The member's page offers it too, and asks first.
+      {if:guilds:succession-days > 0}If the leader has not been seen for {setting:guilds:succession-days|days}, the most senior member who has been around within that time takes over by themselves.{else}A leader who disappears stays leader: this server never replaces one.{/if}

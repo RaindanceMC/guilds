@@ -1,0 +1,44 @@
+id: guild-bank
+title: The guild bank
+summary: Pay in, take out within daily limits, pay members, read the statement — and what happens to it when a guild ends.
+intro: |
+  A shared purse needs rules, or it needs a funeral. These are the rules.
+icon: GOLD_INGOT
+category: Guilds & teams
+order: 3
+module: guilds
+when: guilds:bank.enabled
+aliases: [bank-guild, deposit, withdraw, gbank, treasury]
+keywords: [money, pay, daily limit, statement, balance, limit, rank, share, disband]
+related: [guilds, guild-members, guild-levels, guild-enchants]
+sections:
+  - question: How do I use the guild bank?
+    title: Opening the bank
+    text: |
+      {run:/guild bank} opens the bank page, or talk to the guild banker if your guild has placed one (see {topic:guild-enchants}). You can pay in, take out and read the statement — every payment in and out. {cmd:/guild bank available} tells you what you may take today.
+  - question: How do I pay money in?
+    title: Paying in
+    text: |
+      {cmd:/guild deposit <amount>} (or {cmd:/guild bank pay in <amount>}, or the button on the bank page). Amounts can be written like 500 or 1.5k.{if:guilds:bank.most} The bank holds at most {setting:guilds:bank.most|money}; beyond that it is full.{/if} Everybody may pay in, and what you paid in counts towards your share if the guild ends.
+      {if:guilds-progress:xp.deposit-per-thousand > 0}Paying in also earns the guild experience: {setting:guilds-progress:xp.deposit-per-thousand|number} for every thousand coins. Taking money out again does not take it back.{/if}
+  - question: How much may I take out?
+    title: Daily limits
+    text: |
+      {cmd:/guild withdraw <amount>}, {cmd:/guild withdraw all} for everything your limit leaves, or the button in the bank page. You need a rank with the <i>take from the bank</i> permission, and you may take only up to your <b>daily limit</b>: your own, if the guild set one for you, else your rank's. The leader has none. The day runs from midnight UTC.
+      New guilds start officers on {setting:guilds:bank.officer-daily-limit|money} a day and members on {setting:guilds:bank.member-daily-limit|money}; recruits get nothing. Each guild changes its own afterwards.
+  - question: How do I change the limits?
+    title: Setting limits
+    text: |
+      Ranks: {cmd:/guild bank limit rank <rank> <amount|none>} or the rank's page. A single player: {cmd:/guild bank limit player <player> <amount|none|rank>} or their member page — their own limit replaces the rank's, higher or lower; <b>rank</b> hands them back to the rank's. You need the <i>manage ranks</i> permission for ranks; you cannot set limits on people at or above your rank.
+  - question: How do I pay somebody from the bank?
+    title: Paying out
+    text: |
+      {cmd:/guild pay <player> <amount>} pays anybody — also people outside the guild — from the bank, any sum it holds, with no daily limit. It needs the <i>pay from the bank</i> permission, which only the leader has until they hand it out. Everyone in the guild is told what was paid.
+  - question: Who can see what happened?
+    title: Statement and log
+    text: |
+      Everyone with the <i>read the log</i> permission can read the bank's statement (every payment in and out) and the guild's log, newest first. Anything that just happened appears within a few seconds.
+  - question: What happens to the bank at the end?
+    title: Disbanding
+    text: |
+      It is shared out first. {if:guilds:bank.disband-share == leader}On this server all of it goes to the leader.{/if}{if:guilds:bank.disband-share == contribution}On this server it is shared by what each member paid in.{/if}{if:guilds:bank.disband-share == even}On this server it is shared evenly among the members.{/if} The shares always add up to exactly what was there.

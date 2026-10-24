@@ -1,0 +1,38 @@
+id: guild-allies
+title: Allies and rivals
+summary: Ask for alliances, declare rivalries, how many allies you may have, and what each means in a fight.
+intro: |
+  Friends are guilds you have not fallen out with yet. Rivals are the other kind, and they are worth experience.
+icon: WHITE_BANNER
+category: Guilds & teams
+order: 8
+module: guilds
+aliases: [ally, unally, rival, unrival, alliance, alliances, rivals, enemy]
+keywords: [allied, rivalry, diplomat, relations, friendly fire, fight]
+related: [guilds, guild-chat, guild-levels, guild-perks]
+sections:
+  - question: How do I ally with another guild?
+    title: Alliances
+    text: |
+      {cmd:/guild ally <tag>} asks their guild; if they already asked you it accepts instead. Both guilds have to agree within {setting:guilds:invitation-hours|hours}, and both need a free ally slot. The other side's officers are told and answer with the same command. You need the <i>alliances and rivals</i> permission. The guild page, <b>Allies and rivals</b>, lists every guild and your standing to it: click to ask, accept or end.
+  - question: How many allies may we have?
+    title: Ally slots
+    text: |
+      {setting:guilds:levels.allies-at-first} at level 1, and one more every {setting:guilds:levels.levels-per-ally} levels. The Diplomat perk adds one slot per rank. A slot has to be free on both sides.
+  - question: How do I end an alliance?
+    title: Ending it
+    text: |
+      {cmd:/guild unally <tag>} — either side, at any time, no consent needed. Both guilds are told. To ally again, both have to agree again.
+  - question: What is a rival?
+    title: Rivals
+    text: |
+      {cmd:/guild rival <tag>} declares a guild your rival (and ends any alliance with it). They are told. {cmd:/guild unrival <tag>} ends it. Rivalry is one-sided: your enemy does not have to declare you back.
+  - question: Why does rivalry matter?
+    title: Rival kills
+    when: guilds-progress:xp.rival-kill > 0
+    text: |
+      Killing a member of a guild that is your rival — either side counts — earns your guild {setting:guilds-progress:xp.rival-kill|number} experience. The same victim counts only once an hour for the same killer, so friends in rival guilds cannot farm each other.
+  - question: Can allies hurt each other?
+    title: Friendly fire
+    text: |
+      Not unless the attacker's guild allows hurting allies in its choices (right-click on friendly fire). Members of one guild are protected from each other the same way. This only ever stops damage; it never allows PvP where it is forbidden.

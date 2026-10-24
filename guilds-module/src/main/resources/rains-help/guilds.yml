@@ -1,0 +1,60 @@
+id: guilds
+title: Guilds
+summary: Found or join a guild — a named group with ranks, a bank, levels, allies and a tag in front of your name.
+intro: |
+  Alone you are a player. Together you are a guild, which is the same thing with a nicer name tag and a shared bank account.
+icon: WHITE_BANNER
+category: Guilds & teams
+order: 1
+module: guilds
+aliases: [guild, g, clan, clans, team, teams, group]
+keywords: [found, create, tag, name, join, page, info, list, motd, colour, emblem, disband, sidebar]
+commands: [guild]
+related: [guild-members, guild-bank, guild-levels, guild-perks, guild-home, guild-chat, guild-allies, guild-enchants, claims]
+sections:
+  - question: What is a guild?
+    title: Guilds
+    text: |
+      A guild is a group of players with a name, a tag, a ladder of ranks with their own permissions, a shared bank, a level that grows as the members play, allies and rivals, a guild home and its own chat channels. Everybody belongs to at most one guild at a time. Loyalty is the whole point.
+  - question: How do I open the guild page?
+    title: The guild page
+    text: |
+      Type {run:/guild}. In a guild it is your guild's page: members, invitations and applications, ranks, allies and rivals, bank, home, log, level and contracts, perks, enchantments and the guild's own choices. Not in a guild, it offers to found one, to browse every guild, and to answer your invitations. {cmd:/g}, {cmd:/guilds} and {cmd:/clan} all do the same.
+  - question: How do I found a guild?
+    title: Founding
+    text: |
+      Type {cmd:/guild create <name> <tag>}, for example {cmd:/guild create The Elves ELF}. Or click the button on the guild page and type the name and the tag in chat. You become its leader.
+      {if:guilds:founding-price}Founding costs {setting:guilds:founding-price|money}, paid by you. If something goes wrong after paying, you get it back.{else}Founding is free.{/if} You cannot found one while you are in another guild.
+  - question: What may a guild be called?
+    title: Names and tags
+    text: |
+      A name is {setting:guilds:name.shortest} to {setting:guilds:name.longest} characters: letters, digits, spaces, dashes, underscores and apostrophes. A tag is {setting:guilds:tag.shortest} to {setting:guilds:tag.longest} letters or digits, no spaces — it goes in front of every member's name, so it is kept short. Both must be unused by another guild.
+      {if:guilds:name.banned-words}Some words are banned in names and tags, whatever tricks you try with accents or numbers for letters.{/if}
+  - question: Where does my guild's tag show up?
+    title: Tag in names
+    when: guilds:tag-in-names
+    text: |
+      In front of every member's name in chat and the tablist, in the guild's colour. A guild that earned enough levels can paint it — see {topic:guild-levels}. Guilds that went through prestige carry stars, and last week's champion wears a crown. Every player chooses which of these badges they wear in {cmd:/cosmetics tags}.
+  - question: How do I see another guild?
+    title: Looking at guilds
+    text: |
+      {run:/guild list} shows every guild: level, members, leader, how to join, and a click to join or apply. {cmd:/guild info <tag>} prints a short card of one guild (yours if you give no tag): level, members against its cap, leader, allies and how it takes members.
+  - question: What can a guild choose for itself?
+    title: The guild's choices
+    text: |
+      On the guild page, <b>The guild's own choices</b> holds: name, tag, colour, emblem, message of the day and who may join. A rank needs the <i>edit the guild</i> permission to change them.
+      Commands: {cmd:/guild rename <name>}, {cmd:/guild tag <tag>}, {cmd:/guild motd <text>} (every member sees it when they join), and {cmd:/guild joining <invite|apply|open>}. The message of the day is cleared with a right click in the menu.
+  - question: Can members hurt each other?
+    title: Friendly fire
+    text: |
+      By default no. In the guild's choices a rank with the right permission can switch friendly fire on for members, and separately on for allies (right-click). It only ever <i>stops</i> damage: a guild can never allow PvP where the world or a claim forbids it.
+  - question: Does the guild show up in the sidebar?
+    title: Sidebar
+    when: guilds:sidebar
+    text: |
+      Yes: under your balance the sidebar shows your guild, its level, the experience to the next one and the bank.
+  - question: How do I disband a guild?
+    title: Disbanding
+    text: |
+      Only the leader. {cmd:/guild disband} warns you; the same command with <b>confirm</b> at the end does it — or the red button in the guild's choices, which asks first. Everybody leaves, alliances end, the name is free again and the bank is shared out first{if:guilds:bank.enabled && guilds:bank.disband-share == leader}: all of it goes to the leader{/if}{if:guilds:bank.enabled && guilds:bank.disband-share == contribution}: by what each member paid in{/if}{if:guilds:bank.enabled && guilds:bank.disband-share == even}: evenly among the members{/if}. Empty the guild vault first, if you bought one.
+      {if:guilds:announce}Everybody is told when a guild is founded or disbanded.{/if}

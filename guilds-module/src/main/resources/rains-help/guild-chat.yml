@@ -1,0 +1,29 @@
+id: guild-chat
+title: Guild chat
+summary: Talk to your guild, its officers, or the guild and its allies without anybody else listening.
+intro: |
+  Three private channels. I promise I do not read them. Much.
+icon: BELL
+category: Guilds & teams
+order: 7
+module: guilds
+aliases: [gc, officerchat, allychat, oc, ac, guildchat]
+keywords: [chat, channel, officer, ally, message, talk]
+related: [guilds, guild-allies, guild-members]
+sections:
+  - question: How do I talk to my guild?
+    title: Guild chat
+    text: |
+      {cmd:/guild c <message>} sends one line to every member of your guild on the network. The same channel is reachable as the guild channel of the server's chat. What you type is shown as text; markup in a message is printed, not obeyed.
+  - question: How do I talk to the officers only?
+    title: Officer chat
+    text: |
+      {cmd:/guild oc <message>}. You need the <i>officer chat</i> permission, and so do the readers — everyone else in the guild never sees it.
+  - question: How do I talk to my allies?
+    title: Ally chat
+    text: |
+      {cmd:/guild ac <message>} reaches your whole guild <i>and</i> every guild you are allied with. See {topic:guild-allies}.
+  - question: Why does it print usage at me?
+    title: Empty messages
+    text: |
+      Because there is nothing to send. Type a message after it. {cmd:/guild c hello} is more than enough.

@@ -1,0 +1,39 @@
+id: guild-perks
+title: Perks, prestige and the vault
+summary: Spend perk points on haste, luck, room, shared storage and more; start over at the top for a star and a lasting bonus.
+intro: |
+  Levels are bragging rights. Perks are levels that do something.
+icon: NETHER_STAR
+category: Guilds & teams
+order: 5
+module: guilds
+aliases: [perks-guild, prestige, vault, guildvault, points, respec, crown-perk]
+keywords: [haste, luck, scholar, prosperous, recruiter, diplomat, pathfinder, points, star, crown, vault, storage]
+related: [guild-levels, guilds, guild-enchants]
+sections:
+  - question: What are perk points?
+    title: Perk points
+    text: |
+      A guild earns one point for every level it gains (a prestige keeps them), {setting:guilds-progress:honours.points-per-prestige} for every prestige and {setting:guilds-progress:honours.points-per-crown} for every weekly crown. Spend them on {run:/guild perks}: a rank of a perk costs one point and needs the guild to be at that rank's level <i>right now</i>. You need the <i>spend perk points</i> permission.
+  - question: Which perks are there?
+    title: The perks
+    text: |
+      <b>Guild vault</b> (up to 6 ranks): a shared vault, nine more stacks per rank. <b>Miner's haste</b> (2): members dig faster — Haste I, then II. <b>Fortune's favour</b> (2): Luck I, then II. <b>Scholar</b> (3): 10 % more of the vanilla experience members pick up, per rank. <b>Prosperous</b> (3): 5 % more guild experience per rank. <b>Recruiter</b> (3): room for 2 more members per rank. <b>Diplomat</b> (2): one more ally slot per rank. <b>Pathfinder</b> (2): the guild home's warm-up and wait are halved, then gone.
+      The perks page shows the guild level each next rank needs.
+  - question: Can I take my points back?
+    title: Respec
+    text: |
+      Yes: <b>Take the points back</b> on the perks page (it asks first) removes every perk and returns every point.{if:guilds-progress:honours.respec-days > 0} You can do it once every {setting:guilds-progress:honours.respec-days|days}.{/if} The whole guild loses the perks until the points are spent again.
+  - question: What is prestige?
+    title: Prestige
+    text: |
+      A guild at the top level (level {setting:guilds:levels.top}) can start again: the leader types {cmd:/guild prestige} (which explains it) and then {cmd:/guild prestige confirm}, or uses the perks page. The guild goes back to level 1, keeps every perk and point, gets {setting:guilds-progress:honours.points-per-prestige} perk points, a star after its tag and a lasting +{setting:guilds-progress:honours.percent-per-prestige|percent} guild experience per star. Members and allies stay, but the room a level gave goes until it is earned back. Everybody is told.
+  - question: What is the guild vault?
+    title: The vault
+    text: |
+      A chest every member shares, bought as a perk. Open it with {run:/guild vault}, with the vault keeper (see {topic:guild-enchants}) or on the perks page. Anybody may put things in (shift-click from your inventory, or drop onto a page); taking things out needs the <i>take from the vault</i> permission. Armour goes onto its stand first.
+      More rows come with further ranks of the perk. A guild with items in its vault cannot disband until it is emptied. A full vault sends back what did not fit.
+  - question: What does the crown do?
+    title: The crown
+    text: |
+      The guild with the most experience last week wears ♛ this week next to its members' names, and gets perk points. See {topic:guild-levels} for the race.

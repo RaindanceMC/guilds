@@ -1,0 +1,29 @@
+id: guild-enchants
+title: Guild enchantments and attendants
+summary: Unlock Rain's enchantments for the whole guild with shards, and place a banker, vault keeper or enchanter.
+intro: |
+  Some enchantments are not sold to individuals. They are sold to guilds that have collected the pieces.
+icon: ENCHANTED_BOOK
+category: Guilds & teams
+order: 9
+module: guilds
+aliases: [shards, enchants, enchanter, banker, keeper, attendants, npc]
+keywords: [shard, unlock, books, enchantment, shop, vault keeper, banker, place, npc]
+related: [guilds, guild-bank, guild-perks]
+sections:
+  - question: How do guild enchantments work?
+    title: Unlocking
+    text: |
+      Rain's special enchantments cannot be bought by just anybody. Members <b>pay shards</b> of an enchantment in together; once the guild has paid in {setting:guilds:enchants.unlock-shards|number} shards of one, it is unlocked, and every member can buy its books at the shop (with shards and a little money). Shards drop in the shard world.
+  - question: How do I pay shards in?
+    title: Paying shards
+    text: |
+      Open {run:/guild shards} to see every enchantment, how far the guild is, and how many shards <i>you</i> carry; click one to pay them in. {cmd:/guild shards add} pays in everything you carry that the guild still needs, never more than an enchantment needs. If the guild's records cannot be written, your shards come back to you.
+  - question: What are the guild's attendants?
+    title: Attendants
+    text: |
+      Three NPCs: the <b>guild banker</b> (opens the bank), the <b>vault keeper</b> (the vault) and the <b>guild enchanter</b> (the enchantments). Members right-click them, only members of their own guild may use them, and the screen opens straight away.
+  - question: How do I place one?
+    title: Placing attendants
+    text: |
+      Stand where you may build and type {cmd:/guild npc bank}, {cmd:/guild npc vault} or {cmd:/guild npc enchants}. A guild has one of each; {cmd:/guild npc remove bank} (or vault, enchants) takes one away, so you can place it again elsewhere. Only the leader and ranks with the <i>place attendants</i> permission (officers have it, unless the leader takes it away) may. Wait a moment after a restart: they are read first.

@@ -1,0 +1,55 @@
+id: guild-levels
+title: Levels, experience and contracts
+summary: How a guild earns experience, what each level unlocks, weekly contracts, the weekly race and the experience boost.
+intro: |
+  Everything you do, your guild takes a cut of. Fortunately that cut is called "levels", and levels are good.
+icon: EXPERIENCE_BOTTLE
+category: Guilds & teams
+order: 4
+module: guilds
+aliases: [level, xp, experience, contracts, crown, race, boost]
+keywords: [monster, boss, ore, mining, fish, breed, trade, harvest, raid, rival, advancement, weekly, together, bonus, size, damping]
+related: [guilds, guild-perks, guild-bank, guild-home]
+sections:
+  - question: How does a guild level up?
+    title: Levels
+    text: |
+      Members earn the guild experience by playing. A guild reaches level n at {setting:guilds:levels.base|number} × (n − 1) to the power of {setting:guilds:levels.growth|number} experience in total, up to level {setting:guilds:levels.top}. {if:guilds:levels.growth > 1}Every level costs more than the one before.{else}Every level costs the same.{/if} {run:/guild level} shows your guild's level, the next ones, the sources and your current bonus.
+  - question: What does a level unlock?
+    title: Unlocks
+    text: |
+      Members: {setting:guilds:levels.members-at-first} at level 1, {setting:guilds:levels.members-per-level} more per level. Allies: {setting:guilds:levels.allies-at-first} at level 1, one more every {setting:guilds:levels.levels-per-ally} levels. The guild home from level {setting:guilds:levels.home-from}. A painted tag and name from level {setting:guilds:levels.style-from}. Every level up also brings one perk point (see {topic:guild-perks}) and a fanfare.
+  - question: What earns experience?
+    title: Sources
+    text: |
+      Per unit, for each member:
+      Monster killed {setting:guilds:xp.monster|number} · boss {setting:guilds:xp.boss|number} (wither, ender dragon, elder guardian, warden) · advancement {setting:guilds:xp.advancement|number} (only those announced in chat) · minute played {setting:guilds:xp.minute|number} (not while away).
+      Ore mined {setting:guilds-progress:xp.ore|number} times its rarity (coal and copper 1, iron 2, gold 3, diamond 8, emerald 10, ancient debris 15 — never ore a player placed) · fish caught {setting:guilds-progress:xp.fish|number} · animal bred {setting:guilds-progress:xp.breed|number} · villager trade {setting:guilds-progress:xp.trade|number} · crop harvested {setting:guilds-progress:xp.harvest|number} (fully grown, or a melon or pumpkin the world grew) · enchanting level spent {setting:guilds-progress:xp.enchant-level|number} · raid won {setting:guilds-progress:xp.raid|number} · rival defeated {setting:guilds-progress:xp.rival-kill|number} (same victim counts once an hour){if:guilds-progress:xp.deposit-per-thousand > 0} · {setting:guilds-progress:xp.deposit-per-thousand|number} per thousand coins paid into the bank{/if}.
+      A value of 0 means that activity earns nothing here.
+  - question: Do big guilds earn more?
+    title: Size
+    text: |
+      In total, yes; per member, a little less. {if:guilds:xp.size-damping > 0}Each member's earnings count less the bigger the guild is (damping {setting:guilds:xp.size-damping|number}), which keeps a guild of three in the race.{else}This server applies no size damping.{/if}
+  - question: What is the bonus for playing together?
+    title: Together bonus
+    when: guilds-progress:together.percent-per-member > 0
+    text: |
+      Playing near guildmates earns you more: +{setting:guilds-progress:together.percent-per-member|percent} for each guildmate within {setting:guilds-progress:together.radius} blocks, up to +{setting:guilds-progress:together.most-percent|percent}. Perks and prestige add their own percent on top, and so does a server boost.
+  - question: What are weekly contracts?
+    title: Contracts
+    when: guilds-progress:contracts.enabled
+    text: |
+      Each week your guild is dealt {setting:guilds-progress:contracts.per-week} goals for the whole guild — kill monsters, mine ore, fish, trade, harvest, play together and so on, never two of the same kind. They grow with the guild's size, scaled to {setting:guilds-progress:contracts.size-percent|percent}. Everything the members do counts. A finished contract pays {setting:guilds-progress:contracts.reward-percent|percent} of the experience between the guild's level and the next one, at least 50, so it stays worth doing at every level.
+      {run:/guild contracts} shows them and when new ones come (Monday). Click a contract to tell the guild how far you are.
+  - question: What is the weekly race?
+    title: The crown race
+    text: |
+      The guild that earned the most experience in a week wears the crown the next week and gets perk points for it. {run:/guild crown} shows this week's standings. Guilds that earned nothing are never placed.
+  - question: What is a guild boost?
+    title: Boost
+    text: |
+      Staff can start a time-limited experience boost for events: everybody is told, and every member's earnings go up by that percent until it ends. It stacks with the together bonus.
+  - question: Can I see where my guild's XP came from?
+    title: The breakdown
+    text: |
+      Yes: <b>Where the experience came from</b> on the level page lists the sources, with totals. It is also where you find the week's race and the contracts.

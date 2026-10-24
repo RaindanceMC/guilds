@@ -45,7 +45,8 @@
         <!-- 0.16.0: no hourly cap on the experience a member earns their guild (setting xp.hourly-cap removed); size damping stays. -->
         <!-- 0.20.0: the guild tag and its stars and crown are wearable name badges: each player chooses in /cosmetics tags. Needs RainsCore with NameBadges wardrobe. -->
         <!-- 0.20.1: the hourly hand-over of long-gone leaders reads the guilds off the server thread. -->
-        <plugin.version>0.20.2</plugin.version>
+        <!-- 0.21.0: /help guide pages for guilds (RainsCore 2.4.0). -->
+        <plugin.version>0.21.0</plugin.version>
     </properties>
 
     <dependencies>

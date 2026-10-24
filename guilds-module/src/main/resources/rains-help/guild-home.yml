@@ -1,0 +1,30 @@
+id: guild-home
+title: The guild home
+summary: A shared teleport destination, unlocked by level — how to set it, reach it and how long it takes.
+intro: |
+  Somewhere to go back to, even when the rest of your guild has stopped answering.
+icon: RED_BED
+category: Guilds & teams
+order: 6
+module: guilds
+aliases: [guildhome, ghome, sethome-guild]
+keywords: [teleport, home, warm-up, cooldown, wait, set]
+related: [guilds, guild-levels, guild-perks]
+sections:
+  - question: How do I get to the guild home?
+    title: Going home
+    text: |
+      {cmd:/guild home} (or the button on the guild page). You need a rank with the <i>use the guild home</i> permission. There is a warm-up of {setting:guilds:home.warmup|seconds} first — stay put, a countdown tells you — and then a wait of {setting:guilds:home.cooldown|seconds} before the next trip. If something interrupts the trip, you are told why. Animals you lead come along.
+      {if:@perm:rainsguilds.home.nowait}You hold a permission that skips the wait between trips.{/if}
+  - question: How do I set the home?
+    title: Setting it
+    text: |
+      Stand where it should be and type {cmd:/guild sethome}. It needs the <i>set the guild home</i> permission and a guild of level {setting:guilds:levels.home-from} or higher; the guild is told where it moved. A guild that has not yet reached that level has no home at all.
+  - question: Can I make the trip shorter?
+    title: Pathfinder
+    text: |
+      Yes: the Pathfinder perk halves the warm-up and the wait, then removes them (see {topic:guild-perks}).
+  - question: Does it work between servers?
+    title: Other servers
+    text: |
+      On a network, a home is on the server where it was set. From another server you are sent there and land at it.
