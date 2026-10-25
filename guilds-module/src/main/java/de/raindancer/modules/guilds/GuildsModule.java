@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.22.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.22.1")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -298,17 +298,22 @@ public final class GuildsModule implements FlexModule {
                 }
             }
             book.expire(System.currentTimeMillis());
-            perks.settle();
-            if (minutes.incrementAndGet() % 60 == 0) {
-                // Reads every guild from the database first: never inside a tick.
-                Scheduling.async(context.plugin(), () -> {
+            boolean hourly = minutes.incrementAndGet() % 60 == 0;
+            // Both read and write the database: never inside a tick.
+            Scheduling.async(context.plugin(), () -> {
+                try {
+                    perks.settle();
+                } catch (RuntimeException failed) {
+                    context.log().error(failed, "Settling the week's crown failed; tried again in a minute.");
+                }
+                if (hourly) {
                     try {
                         guilds.succeed();
                     } catch (RuntimeException failed) {
                         context.log().error(failed, "Handing over guilds of long-gone leaders failed; tried again in an hour.");
                     }
-                });
-            }
+                }
+            });
         });
         if (minute != null) {
             context.closeWith(minute::cancel);
