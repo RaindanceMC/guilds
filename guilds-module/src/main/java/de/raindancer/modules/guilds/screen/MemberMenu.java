@@ -72,12 +72,12 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                         "<gray>" + GuildMenu.escaped(rank) + " → <white>" + up.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
                         "", "<gray>Click to promote."),
                 promote.isSuccess() ? "They are as high as promotion goes." : why(promote),
-                click -> IGuildsScreen.tell(services, viewer, this, services.guilds().step(me, member, true)));
+                click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, true)));
         band(MenuLayout.WHO, 3, promote.isSuccess() && down.isPresent(), Icons.of(Material.RED_DYE, "<white>Demote",
                         "<gray>" + GuildMenu.escaped(rank) + " → <white>" + down.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
                         "", "<gray>Click to demote."),
                 promote.isSuccess() ? "They are on the lowest rank." : why(promote),
-                click -> IGuildsScreen.tell(services, viewer, this, services.guilds().step(me, member, false)));
+                click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, false)));
         band(MenuLayout.WHO, 5, promote.isSuccess(), Icons.of(Material.LADDER, "<white>Choose a rank",
                         "<gray>Any rank below your own.", "", "<gray>Click to pick one."),
                 why(promote), click -> {
@@ -86,7 +86,7 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                     new OptionChooser(viewer, services.brand(), this, "Rank for " + GuildMenu.escaped(services.notifier().name(member)),
                             below.stream().map(Rank::name).toList(), rank, chosen -> {
                         below.stream().filter(each -> each.name().equals(chosen)).findFirst().ifPresent(each ->
-                                services.messages().send(viewer, services.guilds().setRank(me, member, each.id()).messageKey()));
+                                IGuildsScreen.say(services, viewer, () -> services.guilds().setRank(me, member, each.id())));
                         open();
                     }).open();
                 });
@@ -97,7 +97,7 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                 "Only the leader can hand the guild over.",
                 click -> new ConfirmScreen(services, viewer, this, "<red>Hand the guild to " + name + "?",
                         List.of("<gray>Only they can give it back."),
-                        () -> IGuildsScreen.tell(services, viewer, this, services.guilds().handOver(me, member))).open());
+                        () -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().handOver(me, member))).open());
 
         GuildOutcome limits = services.guilds().ranks().mayActOn(guild, me, member, GuildPermission.MANAGE_RANKS);
         var allowance = services.bank().allowance(guild, member);
@@ -110,21 +110,21 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                         "<white>rank<gray> for the rank's again."),
                 limits == GuildOutcome.NOT_ALLOWED ? "Your rank cannot manage ranks." : why(limits),
                 click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.member-limit", typed ->
-                        services.messages().send(viewer, services.bank().parseLimit(typed, true)
+                        IGuildsScreen.say(services, viewer, () -> services.bank().parseLimit(typed, true)
                                 .map(minor -> services.guilds().limitMember(me, member, minor))
-                                .orElse(GuildOutcome.INVALID_AMOUNT).messageKey()), "player", name));
+                                .orElse(GuildOutcome.INVALID_AMOUNT)), "player", name));
 
         GuildOutcome kick = services.guilds().ranks().mayActOn(guild, me, member, GuildPermission.KICK);
         if (kick.isSuccess()) {
             danger(Icons.of(Material.IRON_BOOTS, "<red>Remove from the guild", "", "<gray>You will be asked first."),
                     click -> new ConfirmScreen(services, viewer, this, "<red>Remove " + name + "?",
                             List.of("<gray>They can be invited back."),
-                            () -> {
-                                services.messages().send(viewer, services.guilds().kick(me, member).messageKey());
+                            () -> IGuildsScreen.off(services, viewer, () -> services.guilds().kick(me, member), kicked -> {
+                                services.messages().send(viewer, kicked.messageKey());
                                 if (parent() != null) {
                                     parent().open();
                                 }
-                            }).open());
+                            })).open());
         } else {
             band(MenuLayout.RULES, 4, Icons.locked(Icons.of(Material.IRON_BOOTS, "<white>Remove from the guild"), why(kick)));
         }

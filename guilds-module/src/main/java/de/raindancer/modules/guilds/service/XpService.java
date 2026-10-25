@@ -249,6 +249,18 @@ public final class XpService implements IGuildsService {
                 more.contractsPerWeek(), more.contractSizePercent(), reward));
     }
 
+    /**
+     * Reads what the events of this guild would otherwise read, on the thread each happens on: its standing, its
+     * vault, this week's contracts. Off the server's threads; cheap when it is all known.
+     */
+    public void warm(Guild guild) {
+        PerkService honours = perks;
+        if (honours != null) {
+            honours.warm(guild);
+        }
+        contracts(guild);
+    }
+
     public long weekEnds() {
         return ContractRule.weekEnds(ContractRule.weekOf(now()));
     }

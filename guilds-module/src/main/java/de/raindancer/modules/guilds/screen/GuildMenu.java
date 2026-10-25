@@ -10,6 +10,7 @@ import de.raindancer.modules.guilds.model.Rank;
 import de.raindancer.modules.guilds.rules.LevelRule;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -116,7 +117,10 @@ public final class GuildMenu extends Menu implements IGuildsScreen {
         band(MenuLayout.RULES, 5, maySetHome, Icons.of(Material.RED_BED, "<white>Set the guild home here",
                         "<gray>Moves it to where you stand.", "", "<gray>Click to set it."),
                 !unlocked ? "Unlocked at level " + services.homes().unlockedAt() + "." : "Your rank cannot set it.",
-                click -> IGuildsScreen.tell(services, viewer, this, services.homes().set(viewer)));
+                click -> {
+                    Location at = viewer.getLocation();
+                    IGuildsScreen.tell(services, viewer, this, () -> services.homes().set(viewer, at));
+                });
         boolean mayRead = guild.may(me, GuildPermission.VIEW_LOG);
         band(MenuLayout.RULES, 7, mayRead, Icons.of(Material.BOOK, "<white>Log",
                         "<gray>Everything that happened, newest first.", "", "<gray>Click to read it."),
@@ -143,7 +147,7 @@ public final class GuildMenu extends Menu implements IGuildsScreen {
                                 ? List.of("<gray>You are the last member, so", "<gray>the guild is disbanded.")
                                 : List.of("<gray>Your rank and what you put in", "<gray>the bank stay with the guild."),
                         () -> {
-                            services.messages().send(viewer, services.guilds().leave(me, services.bank()).messageKey());
+                            IGuildsScreen.say(services, viewer, () -> services.guilds().leave(me, services.bank()));
                             viewer.closeInventory();
                         }).open());
     }

@@ -48,6 +48,8 @@ public final class PerkService implements IGuildsService {
     private final CrownRule crowns = new CrownRule();
     /** Guilds being disbanded from this server: their vault was empty when checked and takes nothing more until it is over. */
     private final Set<String> sealed = new java.util.HashSet<>();
+    /** Guilds whose vault held something when it was last read — for a vault that is no longer bought. */
+    private final Set<String> holding = java.util.concurrent.ConcurrentHashMap.newKeySet();
     private volatile GuildsSettings settings;
     private volatile GuildProgressSettings more;
     private volatile LevelRule levels;
@@ -354,23 +356,55 @@ public final class PerkService implements IGuildsService {
         return PerkRule.vaultSlots(standing(guild));
     }
 
-    /** Whether the vault can be opened: bought — or no longer bought but still holding things to take out. */
+    /**
+     * Whether the vault can be opened: bought — or no longer bought but still holding things to take out. What it
+     * holds is as {@link #warm} last saw it: asking never reads the database.
+     */
     public boolean hasVault(Guild guild) {
-        return vaultSlots(guild) > 0 || !vaultEmpty(guild);
+        return vaultSlots(guild) > 0 || holding.contains(guild.id().value());
     }
 
-    /** The stacks in the vault as the database has them; none when it cannot be read — see {@link #vaultEmpty}. */
+    /** The vault as the database has it now; empty when it cannot be read. Reads the database: off the server's threads. */
+    public Optional<VaultStore.Contents> vaultContents(Guild guild) {
+        Optional<VaultStore.Contents> read = vaults.read(key(guild));
+        read.ifPresent(held -> remember(guild.id().value(), !held.isEmpty()));
+        return read;
+    }
+
+    /** The stacks in the vault as the database has them; none when it cannot be read. Off the server's threads. */
     public List<ItemStack> vaultItems(Guild guild) {
-        return vaults.read(key(guild)).map(VaultStore.Contents::items).orElse(List.of());
+        return vaultContents(guild).map(VaultStore.Contents::items).orElse(List.of());
     }
 
     public Optional<ItemStack> vaultArmour(Guild guild, ArmourPiece piece) {
-        return vaults.read(key(guild)).map(held -> held.armour().get(piece));
+        return vaultContents(guild).map(held -> held.armour().get(piece));
     }
 
-    /** Whether the vault is empty: never "yes" for one that could not be read, or that holds a line this server cannot. */
+    private void remember(String guild, boolean holds) {
+        if (holds) {
+            holding.add(guild);
+        } else {
+            holding.remove(guild);
+        }
+    }
+
+    /**
+     * Whether the vault is empty: never "yes" for one that could not be read, or that holds a line this server
+     * cannot. Reads the database: off the server's threads.
+     */
     public boolean vaultEmpty(Guild guild) {
-        return vaults.read(key(guild)).map(VaultStore.Contents::isEmpty).orElse(false);
+        return vaultContents(guild).map(VaultStore.Contents::isEmpty).orElse(false);
+    }
+
+    /**
+     * Reads what a guild's screens and events would otherwise read on the thread that asks: its standing (made the
+     * first time) and what its vault holds. Off the server's threads; cheap when it is all known.
+     */
+    public void warm(Guild guild) {
+        standing(guild);
+        if (vaultSlots(guild) <= 0) {
+            vaultContents(guild);
+        }
     }
 
     /** @return how many of {@code item} went in; the caller takes exactly that many away */
@@ -387,7 +421,11 @@ public final class PerkService implements IGuildsService {
         if (now.isEmpty() || vaultSlots(now.get()) <= 0) {
             return 0;
         }
-        return vaults.deposit(key(now.get()), now.get().id().value(), item, vaultSlots(now.get()));
+        int accepted = vaults.deposit(key(now.get()), now.get().id().value(), item, vaultSlots(now.get()));
+        if (accepted > 0) {
+            holding.add(guild.id().value());
+        }
+        return accepted;
     }
 
     /** Takes one entry out, if it is still what the page showed. Null when it is not, or they may not. */

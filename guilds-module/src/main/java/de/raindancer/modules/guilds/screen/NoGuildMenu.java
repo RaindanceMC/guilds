@@ -50,8 +50,8 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
                         services.messages().send(viewer, "guilds.usage.found");
                         return;
                     }
-                    services.messages().send(viewer, services.guilds()
-                            .found(viewer.getUniqueId(), typed.substring(0, space), typed.substring(space + 1)).messageKey());
+                    IGuildsScreen.say(services, viewer, () -> services.guilds()
+                            .found(viewer.getUniqueId(), typed.substring(0, space), typed.substring(space + 1)));
                 }));
         band(MenuLayout.WHO, 4, Icons.of(Material.COMPASS, "<white>Every guild",
                         "<gray>" + services.book().count() + " on this server.",

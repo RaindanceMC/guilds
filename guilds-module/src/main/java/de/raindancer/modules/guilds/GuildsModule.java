@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.22.1")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.23.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -170,6 +170,7 @@ public final class GuildsModule implements FlexModule {
         settings.onChange(perks::settings);
         progressSettings.onChange(perks::progressSettings);
         xp.perks(perks);
+        guilds.onFounded(xp::warm);
         long thousand = Math.max(1, Fees.amount("1000").minor());
         bank.onDeposit((player, amount) -> xp.activity(player, Activity.of(XpSource.DEPOSIT, amount.minor() / thousand)));
         Object watched = PlacedBlocks.watch(context.plugin(), placedMatters());
@@ -289,6 +290,7 @@ public final class GuildsModule implements FlexModule {
         if (flush != null) {
             context.closeWith(flush::cancel);
         }
+        Scheduling.async(context.plugin(), () -> book.all().forEach(xp::warm));
         AtomicInteger minutes = new AtomicInteger();
         var minute = Scheduling.globalTimer(context.plugin(), 20L * 60, 20L * 60, task -> {
             for (Player online : server.getOnlinePlayers()) {
@@ -301,6 +303,8 @@ public final class GuildsModule implements FlexModule {
             boolean hourly = minutes.incrementAndGet() % 60 == 0;
             // Both read and write the database: never inside a tick.
             Scheduling.async(context.plugin(), () -> {
+                // A new week's contracts, a standing never made: read here, not by the first thing a member does.
+                book.all().forEach(xp::warm);
                 try {
                     perks.settle();
                 } catch (RuntimeException failed) {

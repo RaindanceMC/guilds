@@ -92,6 +92,11 @@ public final class HomeService implements IGuildsService {
     }
 
     public GuildOutcome set(Player player) {
+        return set(player, player.getLocation());
+    }
+
+    /** Sets the home at {@code at} — taken on the player's own thread; this writes the database, so it may run off it. */
+    public GuildOutcome set(Player player, Location at) {
         Optional<Guild> found = book.guildOf(player.getUniqueId());
         if (found.isEmpty()) {
             return GuildOutcome.NO_GUILD;
@@ -104,7 +109,6 @@ public final class HomeService implements IGuildsService {
         if (!unlocked(guild)) {
             return GuildOutcome.HOME_LOCKED;
         }
-        Location at = player.getLocation();
         HomeSpot spot = new HomeSpot(at.getWorld().getName(), at.getX(), at.getY(), at.getZ(), at.getYaw(), at.getPitch(),
                 self.get());
         GuildOutcome changed = book.update(guild.id(), now -> now.withHome(Optional.of(spot)));

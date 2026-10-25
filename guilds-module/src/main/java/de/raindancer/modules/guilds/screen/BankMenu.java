@@ -54,13 +54,14 @@ public final class BankMenu extends Menu implements IGuildsScreen {
                         "", "<gray>Click, then type an amount."),
                 "There is no bank on this server right now.",
                 click -> AmountPrompt.ask(services, viewer, "Pay in how much?", () -> -1, "", amount -> {
-                    GuildOutcome outcome = services.bank().deposit(me, amount);
-                    if (outcome.isSuccess()) {
-                        services.messages().send(viewer, "guilds.bank.deposited", "amount", services.bank().format(amount.minor()));
-                    } else {
-                        answer(outcome);
-                    }
-                    open();
+                    IGuildsScreen.off(services, viewer, () -> services.bank().deposit(me, amount), outcome -> {
+                        if (outcome.isSuccess()) {
+                            services.messages().send(viewer, "guilds.bank.deposited", "amount", services.bank().format(amount.minor()));
+                        } else {
+                            answer(outcome);
+                        }
+                        open();
+                    });
                 }, this::open));
         BankService.Allowance allowance = services.bank().allowance(guild, me);
         boolean mayWithdraw = open && guild.may(me, GuildPermission.WITHDRAW);

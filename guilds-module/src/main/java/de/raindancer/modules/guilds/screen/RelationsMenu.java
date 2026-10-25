@@ -124,21 +124,21 @@ public final class RelationsMenu extends PaginatedMenu<Guild> implements IGuilds
         Relation relation = own.relationTo(other.id());
         if (event.isRightClick()) {
             if (relation == Relation.RIVAL) {
-                IGuildsScreen.tell(services, viewer, this, services.relations().endRivalry(me, other.id()));
+                IGuildsScreen.tell(services, viewer, this, () -> services.relations().endRivalry(me, other.id()));
             } else {
                 new ConfirmScreen(services, viewer, this, "<red>Declare " + GuildMenu.escaped(other.name()) + " rivals?",
                         relation == Relation.ALLY ? List.of("<gray>Your alliance with them ends.") : List.of("<gray>Both guilds are told."),
-                        () -> IGuildsScreen.tell(services, viewer, this, services.relations().declareRival(me, other.id()))).open();
+                        () -> IGuildsScreen.tell(services, viewer, this, () -> services.relations().declareRival(me, other.id()))).open();
             }
             return;
         }
         if (relation == Relation.ALLY) {
             new ConfirmScreen(services, viewer, this, "<red>End the alliance with " + GuildMenu.escaped(other.name()) + "?",
                     List.of("<gray>Both guilds have to agree", "<gray>to ally again."),
-                    () -> IGuildsScreen.tell(services, viewer, this, services.relations().endAlliance(me, other.id()))).open();
+                    () -> IGuildsScreen.tell(services, viewer, this, () -> services.relations().endAlliance(me, other.id()))).open();
             return;
         }
-        IGuildsScreen.tell(services, viewer, this, asking(own, other)
+        IGuildsScreen.tell(services, viewer, this, () -> asking(own, other)
                 ? services.relations().acceptAlliance(me, other.id())
                 : services.relations().askAlliance(me, other.id()));
     }

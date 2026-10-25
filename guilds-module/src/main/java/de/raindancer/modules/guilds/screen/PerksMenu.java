@@ -97,7 +97,7 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
             var icon = Icons.of(now > 0 ? perk.icon() : Material.GRAY_DYE,
                     (now > 0 ? "<gold>" : "<gray>") + perk.title() + (now > 0 ? " " + rank(now) : ""), lore);
             cell(1 + index / 4, 1 + (index % 4) * 2, icon,
-                    click -> IGuildsScreen.tell(services, viewer, this, services.perks().raise(me, perk)));
+                    click -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().raise(me, perk)));
         }
 
         GuildOutcome respec = mayBuy ? rule.mayRespec(standing, System.currentTimeMillis()) : GuildOutcome.NOT_ALLOWED;
@@ -110,11 +110,11 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
                         : respec == GuildOutcome.NOTHING_TO_RESPEC ? "Nothing is bought yet." : "Your rank cannot spend points.",
                 click -> new ConfirmScreen(services, viewer, this, "<red>Take every perk back?",
                         List.of("<gray>The guild loses them until the", "<gray>points are spent again."),
-                        () -> IGuildsScreen.tell(services, viewer, this, services.perks().respec(me))).open());
+                        () -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().respec(me))).open());
         boolean vault = services.perks().hasVault(guild);
         toolbar(6, vault, Icons.of(Material.ENDER_CHEST, "<white>The guild vault",
                         "<gray>" + services.perks().vaultSlots(guild) + " stacks.", "", "<gray>Click to open it."),
-                "Buy the Guild vault perk first.", click -> new GuildVaultMenu(services, viewer, this).open());
+                "Buy the Guild vault perk first.", click -> GuildVaultMenu.show(services, viewer, this));
 
         boolean top = services.xp().levels().isTop(level);
         boolean leader = guild.leader().equals(me);
@@ -129,7 +129,7 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
                     click -> new ConfirmScreen(services, viewer, this, "<gold>Prestige the guild?",
                             List.of("<gray>Level 1 again — members and allies", "<gray>stay, the level's room goes until",
                                     "<gray>it is earned back."),
-                            () -> IGuildsScreen.tell(services, viewer, this, services.perks().prestige(me))).open());
+                            () -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().prestige(me))).open());
         } else {
             toolbar(4, Icons.locked(Icons.of(Material.BEACON, "<white>Prestige",
                             "<gray>At level " + services.xp().levels().topLevel() + ", start again from 1",

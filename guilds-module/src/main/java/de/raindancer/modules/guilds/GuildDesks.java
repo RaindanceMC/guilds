@@ -83,7 +83,7 @@ public final class GuildDesks {
             live.messages().send(player, "guilds.vault.none");
             return;
         }
-        new GuildVaultMenu(live, player, null).open();
+        GuildVaultMenu.show(live, player, null);
     }
 
     private void enchants(GuildsServices live, Player player, Guild guild) {

@@ -204,7 +204,15 @@ public final class GuildService implements IGuildsService {
             notify.everybody("guilds.announce.founded", "guild", GuildNotifier.title(guild), "player", notify.name(founder));
         }
         onChange.run();
+        founded.accept(guild);
         return GuildOutcome.SUCCESS;
+    }
+
+    private volatile java.util.function.Consumer<Guild> founded = guild -> { };
+
+    /** Told of each guild founded here, from the thread that founded it — to read what its events will need. */
+    public void onFounded(java.util.function.Consumer<Guild> listener) {
+        this.founded = listener == null ? guild -> { } : listener;
     }
 
     /**

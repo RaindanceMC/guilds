@@ -73,7 +73,7 @@ public final class BrowseMenu extends PaginatedMenu<Guild> implements IGuildsScr
             new GuildMenu(services, viewer, this).open();
             return;
         }
-        services.messages().send(viewer, services.guilds().request(viewer.getUniqueId(), guild.id()).messageKey());
+        IGuildsScreen.say(services, viewer, () -> services.guilds().request(viewer.getUniqueId(), guild.id()));
         refresh();
     }
 

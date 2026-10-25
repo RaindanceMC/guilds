@@ -1,6 +1,7 @@
 package de.raindancer.modules.guilds.command;
 
 import de.raindancer.core.platform.command.PlayerTargets;
+import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.social.team.TeamId;
 import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.model.Guild;
@@ -19,6 +20,7 @@ import de.raindancer.modules.guilds.service.GuildChatService;
 import de.raindancer.modules.guilds.service.GuildNotifier;
 import de.raindancer.modules.guilds.util.PermissionNodes;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -29,7 +31,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
 /**
@@ -44,6 +51,10 @@ public final class GuildCommand implements IGuildsCommand {
             "motd", "joining", "disband", "level", "contracts", "perks", "vault", "prestige", "crown", "shards", "npc");
     static final List<String> STAFF = List.of("admin");
 
+    /** Subcommands that open a screen or touch the player or the world: they stay on the thread they came on. */
+    private static final Set<String> THREAD_BOUND = Set.of("", "info", "list", "top", "level", "xp", "shards", "enchants",
+            "perks", "vault", "contracts", "crown", "race", "chat", "c", "officer", "oc", "ally-chat", "ac", "home", "npc");
+
     private final Supplier<GuildsServices> services;
 
     public GuildCommand(Supplier<GuildsServices> services) {
@@ -56,13 +67,59 @@ public final class GuildCommand implements IGuildsCommand {
         CommandSender sender = source.getSender();
         String first = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
         if (first.equals("admin")) {
-            admin(live, sender, Arrays.copyOfRange(args, 1, args.length));
+            String[] staff = Arrays.copyOfRange(args, 1, args.length);
+            if (staff.length > 0 && staff[0].equalsIgnoreCase("npc")) {
+                admin(live, sender, staff);
+            } else {
+                off(live, sender, () -> admin(live, sender, staff));
+            }
             return;
         }
         if (!(sender instanceof Player player)) {
             live.messages().send(sender, "guilds.only-a-player");
             return;
         }
+        if (first.equals("sethome")) {
+            Location at = player.getLocation();
+            off(live, player, () -> say(live, player, live.homes().set(player, at)));
+        } else if (THREAD_BOUND.contains(first) || first.equals("bank") && args.length == 1) {
+            play(live, player, args);
+        } else {
+            // Everything else reads or writes the guild database: off the server's threads.
+            off(live, player, () -> play(live, player, args));
+        }
+    }
+
+    /**
+     * Database work for a command: off the server's threads for a player. The console and RCON only collect what is
+     * said while the command runs, so for them the command waits for the work (a moment; it is staff's).
+     */
+    private static void off(GuildsServices live, CommandSender sender, Runnable work) {
+        if (sender instanceof Player) {
+            Scheduling.async(live.plugin(), work);
+            return;
+        }
+        CompletableFuture<Void> done = new CompletableFuture<>();
+        Scheduling.async(live.plugin(), () -> {
+            try {
+                work.run();
+                done.complete(null);
+            } catch (RuntimeException failed) {
+                done.completeExceptionally(failed);
+            }
+        });
+        try {
+            done.get(15, TimeUnit.SECONDS);
+        } catch (InterruptedException interrupted) {
+            Thread.currentThread().interrupt();
+        } catch (ExecutionException | TimeoutException failed) {
+            live.messages().send(sender, GuildOutcome.NOT_SAVED.messageKey());
+        }
+    }
+
+    /** What a player's subcommand does; whatever of it touches the guild database runs off the server's threads. */
+    private static void play(GuildsServices live, Player player, String[] args) {
+        String first = args.length == 0 ? "" : args[0].toLowerCase(Locale.ROOT);
         UUID me = player.getUniqueId();
         String rest = args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "";
         switch (first) {
@@ -109,7 +166,7 @@ public final class GuildCommand implements IGuildsCommand {
                 } else if (!live.perks().hasVault(own.get())) {
                     live.messages().send(player, "guilds.vault.none");
                 } else {
-                    new GuildVaultMenu(live, player, null).open();
+                    GuildVaultMenu.show(live, player, null);
                 }
             }
             case "prestige" -> {
@@ -166,7 +223,6 @@ public final class GuildCommand implements IGuildsCommand {
             case "officer", "oc" -> chat(live, player, GuildChatService.Kind.OFFICER, rest);
             case "ally-chat", "ac" -> chat(live, player, GuildChatService.Kind.ALLY, rest);
             case "home" -> say(live, player, live.homes().go(player));
-            case "sethome" -> say(live, player, live.homes().set(player));
             case "npc" -> ownNpc(live, player, Arrays.copyOfRange(args, 1, args.length));
             case "bank" -> bank(live, player, Arrays.copyOfRange(args, 1, args.length));
             case "deposit" -> payIn(live, player, rest);

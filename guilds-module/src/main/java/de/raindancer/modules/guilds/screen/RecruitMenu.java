@@ -58,7 +58,8 @@ public final class RecruitMenu extends PaginatedMenu<Invitation> implements IGui
     @Override
     protected void onClick(Invitation application, InventoryClickEvent event) {
         UUID me = viewer.getUniqueId();
-        IGuildsScreen.tell(services, viewer, this, event.isRightClick()
+        boolean decline = event.isRightClick();
+        IGuildsScreen.tell(services, viewer, this, () -> decline
                 ? services.guilds().declineApplication(me, application.subject())
                 : services.guilds().acceptApplication(me, application.subject()));
     }
@@ -71,7 +72,7 @@ public final class RecruitMenu extends PaginatedMenu<Invitation> implements IGui
                     List<UUID> exclude = new ArrayList<>(services.guilds().guildOf(viewer.getUniqueId())
                             .map(Guild::members).map(members -> members.keySet()).orElse(java.util.Set.of()));
                     new PlayerChooser(viewer, services.brand(), this, "Invite to the guild", exclude, chosen -> {
-                        services.messages().send(viewer, services.guilds().invite(viewer.getUniqueId(), chosen.id()).messageKey());
+                        IGuildsScreen.say(services, viewer, () -> services.guilds().invite(viewer.getUniqueId(), chosen.id()));
                         open();
                     }).open();
                 });

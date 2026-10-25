@@ -68,26 +68,24 @@ public final class TakeOutMenu extends Menu implements IGuildsScreen {
                 click -> AmountPrompt.ask(services, viewer, "Take out how much?", this::left,
                         "More than you may take", amount -> {
                             take(amount);
-                            open();
                         }, this::open));
     }
 
     private void share(int column, Material icon, String name, long minor) {
         band(MenuLayout.WHO, column, minor > 0, Icons.of(icon, "<white>" + name + ": " + services.bank().format(minor),
                         "<gray>Of what you may take today.", "", "<gray>Click to take it."),
-                "There is nothing you may take right now.", click -> {
-                    take(Money.of(minor));
-                    refresh();
-                });
+                "There is nothing you may take right now.", click -> take(Money.of(minor)));
     }
 
     private void take(Money amount) {
-        GuildOutcome outcome = services.bank().withdraw(viewer.getUniqueId(), amount);
-        if (outcome.isSuccess()) {
-            services.messages().send(viewer, "guilds.bank.withdrawn", "amount", services.bank().format(amount.minor()));
-        } else {
-            services.messages().send(viewer, outcome.messageKey());
-        }
+        IGuildsScreen.off(services, viewer, () -> services.bank().withdraw(viewer.getUniqueId(), amount), outcome -> {
+            if (outcome.isSuccess()) {
+                services.messages().send(viewer, "guilds.bank.withdrawn", "amount", services.bank().format(amount.minor()));
+            } else {
+                services.messages().send(viewer, outcome.messageKey());
+            }
+            open();
+        });
     }
 
     @Override

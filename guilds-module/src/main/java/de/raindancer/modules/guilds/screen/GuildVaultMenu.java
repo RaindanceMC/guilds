@@ -7,6 +7,7 @@ import de.raindancer.core.ui.menu.MenuLayout;
 import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildPermission;
+import de.raindancer.modules.guilds.store.VaultStore;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * The guild vault, shared by every member. Nothing in the window is a real item: the slots show copies, and every
@@ -33,6 +35,8 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
 
     private final GuildsServices services;
     private int page;
+    /** The vault as it was last read, off the server's threads: the page is drawn from this, never from the database. */
+    private volatile Optional<VaultStore.Contents> held = Optional.empty();
 
     public GuildVaultMenu(GuildsServices services, Player viewer, Menu parent) {
         super(viewer, services.brand(), parent);
@@ -49,13 +53,36 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
         return "Vault";
     }
 
+    /** Opens the vault once it is read — off the server's threads. */
+    public static void show(GuildsServices services, Player viewer, Menu parent) {
+        GuildVaultMenu menu = new GuildVaultMenu(services, viewer, parent);
+        menu.load(menu::open);
+    }
+
+    /** Reads the vault again, then {@code then} on the viewer's own thread. */
+    private void load(Runnable then) {
+        Optional<Guild> found = guild();
+        if (found.isEmpty()) {
+            then.run();
+            return;
+        }
+        IGuildsScreen.off(services, viewer, () -> services.perks().vaultContents(found.get()), contents -> {
+            held = contents;
+            then.run();
+        });
+    }
+
+    private List<ItemStack> items() {
+        return held.map(VaultStore.Contents::items).orElse(List.of());
+    }
+
     /** Asked again on every click: a member removed while the window is open must not keep using it. */
     private Optional<Guild> guild() {
         return services.guilds().guildOf(viewer.getUniqueId());
     }
 
     private int pages(Guild guild) {
-        int stored = services.perks().vaultItems(guild).size();
+        int stored = items().size();
         int size = Math.max(stored + 1, services.perks().vaultSlots(guild));
         return Math.max(1, MenuLayout.pageCount(size, PER_PAGE));
     }
@@ -68,7 +95,7 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
             return;
         }
         Guild guild = found.get();
-        List<ItemStack> items = services.perks().vaultItems(guild);
+        List<ItemStack> items = items();
         page = MenuLayout.clampPage(page, pages(guild));
         int from = page * PER_PAGE;
         for (int slot = 0; slot < PER_PAGE && from + slot < items.size(); slot++) {
@@ -93,22 +120,47 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
             services.messages().send(viewer, "guilds.vault.no-taking");
             return;
         }
-        ItemStack taken = services.perks().take(guild, viewer.getUniqueId(), index, shown);
-        hand(guild, taken);
+        UUID me = viewer.getUniqueId();
+        IGuildsScreen.off(services, viewer, () -> services.perks().take(guild, me, index, shown), taken -> hand(guild, taken));
     }
 
     /** Into their inventory; what does not fit goes back into the vault, never on the floor. */
     private void hand(Guild guild, ItemStack taken) {
         if (taken == null) {
-            refresh();
+            load(this::refresh);
             return;
         }
         Map<Integer, ItemStack> left = viewer.getInventory().addItem(taken);
-        if (!left.isEmpty()) {
-            left.values().forEach(back -> services.perks().putBack(guild, back));
-            services.messages().send(viewer, "guilds.vault.inventory-full");
+        if (left.isEmpty()) {
+            load(this::refresh);
+            return;
         }
-        refresh();
+        services.messages().send(viewer, "guilds.vault.inventory-full");
+        IGuildsScreen.off(services, viewer, () -> {
+            left.values().forEach(back -> services.perks().putBack(guild, back));
+            return Boolean.TRUE;
+        }, done -> load(this::refresh));
+    }
+
+    /** What the vault did not take comes back to the player: the cursor if it is free, else the inventory, else the floor. */
+    private void giveBack(ItemStack back) {
+        if (viewer.getItemOnCursor().isEmpty()) {
+            viewer.setItemOnCursor(back);
+            return;
+        }
+        viewer.getInventory().addItem(back).values()
+                .forEach(rest -> viewer.getWorld().dropItem(viewer.getLocation(), rest));
+    }
+
+    /** Takes {@code offered} out of the player's hands first — so it cannot be in two places — then puts it in the vault. */
+    private void putIn(Guild guild, ItemStack offered) {
+        IGuildsScreen.off(services, viewer, () -> services.perks().deposit(guild, offered), accepted -> {
+            if (accepted < offered.getAmount()) {
+                services.messages().send(viewer, "guilds.vault.full");
+                giveBack(offered.asQuantity(offered.getAmount() - accepted));
+            }
+            load(this::refresh);
+        });
     }
 
     @Override
@@ -118,7 +170,7 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
             Guild guild = found.get();
             int column = 2;
             for (ArmourPiece piece : ArmourPiece.values()) {
-                ItemStack shown = services.perks().vaultArmour(guild, piece).orElseGet(() -> Icons.of(
+                ItemStack shown = held.map(contents -> contents.armour().get(piece)).orElseGet(() -> Icons.of(
                         Material.LIGHT_GRAY_STAINED_GLASS_PANE, "<gray>" + piece.label() + " stand <dark_gray>— empty",
                         "<dark_gray>Armour put in goes onto its stand first."));
                 toolbar(column++, shown, click -> {
@@ -128,7 +180,10 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
                         services.messages().send(viewer, "guilds.vault.no-taking");
                         return;
                     }
-                    hand(now.get(), services.perks().takeArmour(now.get(), viewer.getUniqueId(), piece));
+                    Guild current = now.get();
+                    UUID me = viewer.getUniqueId();
+                    IGuildsScreen.off(services, viewer, () -> services.perks().takeArmour(current, me, piece),
+                            taken -> hand(current, taken));
                 });
             }
         }
@@ -174,13 +229,9 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
                 viewer.closeInventory();
                 return;
             }
-            int accepted = services.perks().deposit(found.get(), cursor);
-            if (accepted < cursor.getAmount()) {
-                services.messages().send(viewer, "guilds.vault.full");
-            }
-            cursor.setAmount(cursor.getAmount() - accepted);
-            viewer.setItemOnCursor(cursor.isEmpty() ? null : cursor);
-            refresh();
+            ItemStack offered = cursor.clone();
+            viewer.setItemOnCursor(null);
+            putIn(found.get(), offered);
             return;
         }
         super.handleClick(event);
@@ -207,13 +258,9 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
         if (clicked == null || clicked.isEmpty() || found.isEmpty()) {
             return;
         }
-        int accepted = services.perks().deposit(found.get(), clicked);
-        if (accepted < clicked.getAmount()) {
-            services.messages().send(viewer, "guilds.vault.full");
-        }
-        clicked.setAmount(clicked.getAmount() - accepted);
-        event.setCurrentItem(clicked.isEmpty() ? null : clicked);
-        refresh();
+        ItemStack offered = clicked.clone();
+        event.setCurrentItem(null);
+        putIn(found.get(), offered);
     }
 
     @Override

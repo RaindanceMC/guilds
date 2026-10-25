@@ -46,7 +46,7 @@
         <!-- 0.20.0: the guild tag and its stars and crown are wearable name badges: each player chooses in /cosmetics tags. Needs RainsCore with NameBadges wardrobe. -->
         <!-- 0.20.1: the hourly hand-over of long-gone leaders reads the guilds off the server thread. -->
         <!-- 0.21.0: /help guide pages for guilds (RainsCore 2.4.0). -->
-        <plugin.version>0.22.1</plugin.version>
+        <plugin.version>0.23.0</plugin.version>
     </properties>
 
     <dependencies>

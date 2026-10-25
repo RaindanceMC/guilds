@@ -57,17 +57,17 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         band(MenuLayout.WHO, 1, edit, Icons.of(Material.NAME_TAG, "<white>Name",
                         "<gray>" + GuildMenu.escaped(guild.name()), "", "<gray>Click, then type a new name."), locked,
                 click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.name",
-                        typed -> services.messages().send(viewer, services.guilds().rename(me, typed).messageKey())));
+                        typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().rename(me, typed))));
         band(MenuLayout.WHO, 3, edit, Icons.of(Material.OAK_SIGN, "<white>Tag",
                         "<gray>[" + guild.tag() + "]", "", "<gray>Click, then type a new tag."), locked,
                 click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.tag",
-                        typed -> services.messages().send(viewer, services.guilds().retag(me, typed).messageKey())));
+                        typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().retag(me, typed))));
         band(MenuLayout.WHO, 5, edit, Icons.of(guild.colour().bannerMaterial(), "<white>Colour",
                         "<gray>" + guild.colour().describe(), "", "<gray>Click to pick one."), locked,
                 click -> new OptionChooser(viewer, services.brand(), this, "Colour",
                         Arrays.stream(TeamColour.values()).map(TeamColour::describe).toList(), guild.colour().describe(), chosen -> {
                     Arrays.stream(TeamColour.values()).filter(colour -> colour.describe().equals(chosen)).findFirst()
-                            .ifPresent(colour -> services.messages().send(viewer, services.guilds().look(me, colour, null).messageKey()));
+                            .ifPresent(colour -> IGuildsScreen.say(services, viewer, () -> services.guilds().look(me, colour, null)));
                     open();
                 }).open());
         band(MenuLayout.WHO, 7, edit, Icons.of(guild.emblem().suggestedBadge(), "<white>Emblem",
@@ -75,7 +75,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
                 click -> new OptionChooser(viewer, services.brand(), this, "Emblem",
                         Arrays.stream(TeamEmblem.values()).map(TeamEmblem::describe).toList(), guild.emblem().describe(), chosen -> {
                     Arrays.stream(TeamEmblem.values()).filter(emblem -> emblem.describe().equals(chosen)).findFirst()
-                            .ifPresent(emblem -> services.messages().send(viewer, services.guilds().look(me, null, emblem).messageKey()));
+                            .ifPresent(emblem -> IGuildsScreen.say(services, viewer, () -> services.guilds().look(me, null, emblem)));
                     open();
                 }).open());
 
@@ -87,22 +87,22 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
                         "", "<gray>Click, then type it.", "<gray>Right click to clear it."), locked,
                 click -> {
                     if (click.isRightClick()) {
-                        IGuildsScreen.tell(services, viewer, this, services.guilds().motd(me, ""));
+                        IGuildsScreen.tell(services, viewer, this, () -> services.guilds().motd(me, ""));
                         return;
                     }
                     IGuildsScreen.ask(services, viewer, this, "guilds.ask.motd",
-                            typed -> services.messages().send(viewer, services.guilds().motd(me, typed).messageKey()));
+                            typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().motd(me, typed)));
                 });
         band(MenuLayout.RULES, 4, edit, Icons.of(guild.joinMode().icon(), "<white>Who may join",
                         "<gray>" + guild.joinMode().title(), "", "<gray>Click to change."), locked,
-                click -> IGuildsScreen.tell(services, viewer, this, services.guilds().joinMode(me, guild.joinMode().next())));
+                click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().joinMode(me, guild.joinMode().next())));
         band(MenuLayout.RULES, 6, leader, Icons.of(Material.IRON_SWORD, "<white>Friendly fire",
                         "<gray>Members hurting each other: " + (guild.friendlyFire() ? "<red>on" : "<green>off"),
                         "<gray>Members hurting allies: " + (guild.allyFriendlyFire() ? "<red>on" : "<green>off"),
                         "", "<gray>Click to switch it for members.", "<gray>Right click to switch it for allies.",
                         "<dark_gray>Only ever stops damage; it never allows", "<dark_gray>PvP where the server does not."),
                 "Only the leader decides this.",
-                click -> IGuildsScreen.tell(services, viewer, this, click.isRightClick()
+                click -> IGuildsScreen.tell(services, viewer, this, () -> click.isRightClick()
                         ? services.guilds().friendlyFire(me, guild.friendlyFire(), !guild.allyFriendlyFire())
                         : services.guilds().friendlyFire(me, !guild.friendlyFire(), guild.allyFriendlyFire())));
 
@@ -112,9 +112,9 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
                     click -> new ConfirmScreen(services, viewer, this, "<red>Disband " + GuildMenu.escaped(guild.name()) + "?",
                             List.of("<gray>Every member leaves, every alliance", "<gray>ends, and the name is free again."),
                             () -> {
-                                services.messages().send(viewer, services.guilds()
-                                        .disband(me, guild.id(), false, services.bank()).messageKey());
                                 viewer.closeInventory();
+                                IGuildsScreen.say(services, viewer, () -> services.guilds()
+                                        .disband(me, guild.id(), false, services.bank()));
                             }).open());
         } else {
             band(MenuLayout.LAND, 4, Icons.locked(Icons.of(Material.TNT, "<white>Disband the guild"), "Only the leader can disband it."));
@@ -141,7 +141,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
                         "", "<gray>Click to paint it.", "<gray>Right click to take the paint off."), locked,
                 click -> {
                     if (click.isRightClick()) {
-                        IGuildsScreen.tell(services, viewer, this, services.guilds().style(me, tag,
+                        IGuildsScreen.tell(services, viewer, this, () -> services.guilds().style(me, tag,
                                 de.raindancer.core.ui.text.NameStyle.NONE));
                         return;
                     }
@@ -151,8 +151,8 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
                             .current(() -> services.guilds().guildOf(me)
                                     .map(now -> tag ? now.tagStyle() : now.nameStyle())
                                     .orElse(de.raindancer.core.ui.text.NameStyle.NONE))
-                            .onChange(style -> services.messages().send(viewer,
-                                    services.guilds().style(me, tag, style).messageKey()))
+                            .onChange(style -> IGuildsScreen.say(services, viewer,
+                                    () -> services.guilds().style(me, tag, style)))
                             .open();
                 });
     }

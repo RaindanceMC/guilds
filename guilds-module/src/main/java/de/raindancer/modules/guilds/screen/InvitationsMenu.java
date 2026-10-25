@@ -64,11 +64,13 @@ public final class InvitationsMenu extends PaginatedMenu<Invitation> implements 
     protected void onClick(Invitation invitation, InventoryClickEvent event) {
         TeamId id = new TeamId(invitation.guild());
         if (event.isRightClick()) {
-            IGuildsScreen.tell(services, viewer, this, services.guilds().declineInvitation(viewer.getUniqueId(), id));
+            IGuildsScreen.tell(services, viewer, this, () -> services.guilds().declineInvitation(viewer.getUniqueId(), id));
             return;
         }
-        services.messages().send(viewer, services.guilds().acceptInvitation(viewer.getUniqueId(), id).messageKey());
-        GuildMenu.forViewer(services, viewer).open();
+        IGuildsScreen.off(services, viewer, () -> services.guilds().acceptInvitation(viewer.getUniqueId(), id), joined -> {
+            services.messages().send(viewer, joined.messageKey());
+            GuildMenu.forViewer(services, viewer).open();
+        });
     }
 
     @Override

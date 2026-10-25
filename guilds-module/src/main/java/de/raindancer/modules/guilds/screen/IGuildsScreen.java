@@ -1,5 +1,6 @@
 package de.raindancer.modules.guilds.screen;
 
+import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.ui.menu.Menu;
 import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.model.GuildOutcome;
@@ -7,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import java.time.Duration;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A screen of this module, keeping the menu grammar {@code ScreenGrammarTest} holds against the source: greyed
@@ -29,6 +31,27 @@ public interface IGuildsScreen {
         if (page != null) {
             page.refresh();
         }
+    }
+
+    /**
+     * Does a guild's work — it reads and writes the database — off the server's threads, then says how it went and
+     * redraws the page, on the viewer's own thread.
+     */
+    static void tell(GuildsServices services, Player viewer, Menu page, Supplier<GuildOutcome> work) {
+        off(services, viewer, work, outcome -> tell(services, viewer, page, outcome));
+    }
+
+    /** Does a guild's work off the server's threads and says how it went, on the viewer's own thread. */
+    static void say(GuildsServices services, Player viewer, Supplier<GuildOutcome> work) {
+        off(services, viewer, work, outcome -> services.messages().send(viewer, outcome.messageKey()));
+    }
+
+    /** Runs {@code work} off the server's threads and hands what it found to {@code then} on the viewer's own. */
+    static <T> void off(GuildsServices services, Player viewer, Supplier<T> work, Consumer<T> then) {
+        Scheduling.async(services.plugin(), () -> {
+            T done = work.get();
+            Scheduling.entity(services.plugin(), viewer, () -> then.accept(done));
+        });
     }
 
     /**

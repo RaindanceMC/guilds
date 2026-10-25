@@ -75,36 +75,37 @@ public final class RankMenu extends Menu implements IGuildsScreen {
                     (on ? "<green>" : "<gray>") + permission.title(), "<gray>" + permission.description(),
                     "", on ? "<green>Allowed. <gray>Click to take it away." : "<red>Not allowed. <gray>Click to allow it.");
             cell(1 + index / 7, 1 + index % 7, may.isSuccess() ? icon : Icons.locked(icon, why(may)),
-                    may.isSuccess() ? click -> IGuildsScreen.tell(services, viewer, this, services.guilds().toggle(me, rankId, permission))
+                    may.isSuccess() ? click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().toggle(me, rankId, permission))
                             : click -> services.messages().send(viewer, may.messageKey()));
         }
         GuildOutcome edit = services.guilds().ranks().mayEdit(guild, me, rank);
         toolbar(1, edit.isSuccess(), Icons.of(Material.NAME_TAG, "<white>Rename", "", "<gray>Click, then type the new name."),
                 why(edit), click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.rank-name",
-                        typed -> services.messages().send(viewer, services.guilds().renameRank(me, rankId, typed).messageKey())));
+                        typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().renameRank(me, rankId, typed))));
         toolbar(2, edit.isSuccess(), Icons.of(Material.GOLD_NUGGET, "<white>Daily bank limit",
                         rank.isUnlimited() ? "<gray>None." : "<gray>" + services.bank().format(rank.dailyLimit()),
                         "", "<gray>Click, then type an amount.", "<gray>Type <white>none<gray> for no limit."),
                 why(edit), click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.limit", typed -> {
-                    services.messages().send(viewer, services.bank().parseLimit(typed, false)
+                    IGuildsScreen.say(services, viewer, () -> services.bank().parseLimit(typed, false)
                             .map(minor -> services.guilds().limitRank(me, rankId, minor))
-                            .orElse(GuildOutcome.INVALID_AMOUNT).messageKey());
+                            .orElse(GuildOutcome.INVALID_AMOUNT));
                 }));
         toolbar(3, edit.isSuccess(), Icons.of(Material.LIME_DYE, "<white>Move up the ladder", "", "<gray>Click to swap with the rank above."),
-                why(edit), click -> IGuildsScreen.tell(services, viewer, this, services.guilds().moveRank(me, rankId, true)));
+                why(edit), click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().moveRank(me, rankId, true)));
         toolbar(5, edit.isSuccess(), Icons.of(Material.RED_DYE, "<white>Move down the ladder", "", "<gray>Click to swap with the rank below."),
-                why(edit), click -> IGuildsScreen.tell(services, viewer, this, services.guilds().moveRank(me, rankId, false)));
+                why(edit), click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().moveRank(me, rankId, false)));
         if (edit.isSuccess()) {
             danger(Icons.of(Material.BARRIER, "<red>Delete this rank", "<gray>Only a rank nobody holds.", "", "<gray>You will be asked first."),
                     click -> new ConfirmScreen(services, viewer, this, "<red>Delete " + GuildMenu.escaped(rank.name()) + "?",
                             List.of("<gray>Its permissions go with it."), () -> {
-                        GuildOutcome deleted = services.guilds().deleteRank(me, rankId);
-                        services.messages().send(viewer, deleted.messageKey());
-                        if (deleted.isSuccess() && parent() != null) {
-                            parent().open();
-                        } else {
-                            open();
-                        }
+                        IGuildsScreen.off(services, viewer, () -> services.guilds().deleteRank(me, rankId), deleted -> {
+                            services.messages().send(viewer, deleted.messageKey());
+                            if (deleted.isSuccess() && parent() != null) {
+                                parent().open();
+                            } else {
+                                open();
+                            }
+                        });
                     }).open());
         }
     }

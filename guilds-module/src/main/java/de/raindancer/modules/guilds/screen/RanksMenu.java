@@ -82,7 +82,7 @@ public final class RanksMenu extends PaginatedMenu<Rank> implements IGuildsScree
                         "<gray>Starts just above the lowest,", "<gray>with nothing allowed.", "", "<gray>Click, then type its name."),
                 "Your rank cannot manage ranks.",
                 click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.rank-name",
-                        typed -> services.messages().send(viewer, services.guilds().createRank(viewer.getUniqueId(), typed).messageKey())));
+                        typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().createRank(viewer.getUniqueId(), typed))));
     }
 
     @Override
