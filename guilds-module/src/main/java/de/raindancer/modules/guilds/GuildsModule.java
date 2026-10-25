@@ -55,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.21.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.22.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
@@ -193,6 +193,18 @@ public final class GuildsModule implements FlexModule {
                 de.raindancer.modules.guilds.service.GuildSidebar.OWNER, sidebar::lines);
         context.closeWith(() -> de.raindancer.core.ui.scoreboard.SidebarSections.unregister(
                 de.raindancer.modules.guilds.service.GuildSidebar.OWNER));
+        // Screens for /screen — Core 2.10.0; on an older Core there are simply none.
+        try {
+            var screens = context.core().screens();
+            if (screens != null) {
+                new de.raindancer.modules.guilds.service.GuildScreens(book, guilds, bank::format, server)
+                        .register(screens, context.plugin());
+                context.closeWith(() -> de.raindancer.modules.guilds.service.GuildScreens.KINDS
+                        .forEach(screens::unregister));
+            }
+        } catch (LinkageError olderCore) {
+            context.log().info("RainsCore is older than 2.10.0: no guild screens until it is updated.");
+        }
         // @TAG means a guild's members in every command that takes players: /tpahere @DAWN.
         de.raindancer.core.platform.command.PlayerGroups.register("guilds", guilds::membersByTag, guilds::tags);
         context.closeWith(() -> de.raindancer.core.platform.command.PlayerGroups.unregister("guilds"));
