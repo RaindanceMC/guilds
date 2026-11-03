@@ -24,10 +24,9 @@ public final class ProgressListener implements IGuildsListener {
         this.services = services;
     }
 
-    /** What Core heard, as the guild counts it; empty for minutes played, which the guild counts itself. */
+    /** What Core heard, as the guild counts it; empty for minutes played and for kinds the guild does not know. */
     public static Optional<Activity> toGuild(de.raindancer.core.world.activity.Activity activity) {
         XpSource source = switch (activity.kind()) {
-            case PLAY -> null;
             case MONSTER -> XpSource.MONSTER;
             case BOSS -> XpSource.BOSS;
             case ADVANCEMENT -> XpSource.ADVANCEMENT;
@@ -38,6 +37,8 @@ public final class ProgressListener implements IGuildsListener {
             case HARVEST -> XpSource.HARVEST;
             case ENCHANT -> XpSource.ENCHANT;
             case RAID -> XpSource.RAID;
+            // PLAY: the guild counts its own minutes. Anything a newer Core tells earns nothing yet.
+            default -> null;
         };
         return Optional.ofNullable(source).map(each -> new Activity(each, activity.what(), activity.amount()));
     }
