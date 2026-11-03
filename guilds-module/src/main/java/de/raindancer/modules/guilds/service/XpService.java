@@ -160,7 +160,10 @@ public final class XpService implements IGuildsService {
         }
         long counted;
         if (source.isCapped()) {
-            long scaled = TogetherRule.withBonus(base, bonusPercent(player, guild));
+            PerkService honours = perks;
+            int tree = honours == null ? 0
+                    : honours.sourceXpPercent(guild, source, player == null ? 0 : nearby.applyAsInt(player, guild));
+            long scaled = TogetherRule.withBonus(base, bonusPercent(player, guild) + tree);
             counted = rule.award(scaled, guild.size());
         } else {
             counted = base;
@@ -245,8 +248,11 @@ public final class XpService implements IGuildsService {
         int level = levels.levelOf(guild.xp());
         long step = levels.isTop(level) ? levels.toReach(level) - levels.toReach(level - 1) : levels.toReach(level + 1) - levels.toReach(level);
         long reward = ContractRule.reward(step, more.contractRewardPercent());
+        PerkService honours = perks;
+        // At most nine: the contracts page has a row of nine.
+        int count = Math.min(9, more.contractsPerWeek() + (honours == null ? 0 : honours.extraContracts(guild)));
         return progress.contracts(guild.id().value(), week, () -> contracts.draw(guild.id().value(), week, guild.size(),
-                more.contractsPerWeek(), more.contractSizePercent(), reward));
+                count, more.contractSizePercent(), reward));
     }
 
     /**
@@ -266,10 +272,13 @@ public final class XpService implements IGuildsService {
     }
 
     private void pay(TeamId id, Contract finished) {
-        credit(id, null, XpSource.CONTRACT, finished.reward());
-        book.log(GuildEvent.of(id.value(), now(), GuildEvent.Kind.CONTRACT_DONE, null, null, finished.reward(), finished.title()));
+        PerkService honours = perks;
+        int percent = honours == null ? 0 : book.guild(id).map(honours::contractRewardPercent).orElse(0);
+        long reward = TogetherRule.withBonus(finished.reward(), percent);
+        credit(id, null, XpSource.CONTRACT, reward);
+        book.log(GuildEvent.of(id.value(), now(), GuildEvent.Kind.CONTRACT_DONE, null, null, reward, finished.title()));
         book.guild(id).ifPresent(guild -> {
-            notify.members(guild, "guilds.contract.done", "contract", finished.title(), "reward", finished.reward());
+            notify.members(guild, "guilds.contract.done", "contract", finished.title(), "reward", reward);
             guild.members().keySet().forEach(each -> effects.play(each, Cues.REWARD));
         });
     }

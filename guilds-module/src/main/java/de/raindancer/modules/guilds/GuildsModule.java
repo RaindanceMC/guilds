@@ -55,10 +55,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.23.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.24.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
-                    + "rivals, guild, officer and ally chat, and the guild's tag in front of every member's name")
+                    + "rivals, a skill tree of perks bought with the guild's levels, guild, officer and ally chat, and the guild's tag in "
+                    + "front of every member's name")
             .by("Raindancer118");
 
     private GuildBook book;
@@ -170,6 +171,7 @@ public final class GuildsModule implements FlexModule {
         settings.onChange(perks::settings);
         progressSettings.onChange(perks::progressSettings);
         xp.perks(perks);
+        perks.nearby(positions::guildmatesNear);
         guilds.onFounded(xp::warm);
         long thousand = Math.max(1, Fees.amount("1000").minor());
         bank.onDeposit((player, amount) -> xp.activity(player, Activity.of(XpSource.DEPOSIT, amount.minor() / thousand)));
@@ -262,6 +264,14 @@ public final class GuildsModule implements FlexModule {
                 : java.util.Optional.empty());
         context.closeWith(() -> de.raindancer.core.ui.identity.NameBadges.unregister("guild-honours"));
         context.listener(new PerkListener(services));
+        var packs = context.core().resourcePacks();
+        try {
+            de.raindancer.modules.guilds.store.GuildsPack.offer(context.plugin(), packs);
+            context.closeWith(() -> de.raindancer.modules.guilds.store.GuildsPack.withdraw(packs));
+        } catch (java.io.IOException unwritable) {
+            context.log().warn("The guild skill tree's looks could not be written out ({}); it shows in Core's.",
+                    unwritable.getMessage());
+        }
         ProgressListener progress = new ProgressListener(services);
         context.listener(progress);
         context.listener(new PresenceListener(services, List.<IGuildsListener>of(progress)));

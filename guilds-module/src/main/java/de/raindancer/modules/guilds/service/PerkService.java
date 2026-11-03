@@ -7,7 +7,8 @@ import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildEvent;
 import de.raindancer.modules.guilds.model.GuildOutcome;
 import de.raindancer.modules.guilds.model.GuildPermission;
-import de.raindancer.modules.guilds.model.Perk;
+import de.raindancer.modules.guilds.model.GuildTree;
+import de.raindancer.modules.guilds.model.XpSource;
 import de.raindancer.modules.guilds.model.Standing;
 import de.raindancer.modules.guilds.rules.CrownRule;
 import de.raindancer.modules.guilds.rules.LevelRule;
@@ -30,9 +31,10 @@ import java.util.UUID;
 import java.util.function.LongSupplier;
 
 /**
- * What a guild gets for its levels: perk points and what they buy, prestige past the top level, the weekly crown,
- * and the shared vault. Everything a perk changes elsewhere — member cap, ally slots, the home's wait, guild and
- * vanilla experience — is asked of here, so a perk has one meaning.
+ * What a guild gets for its levels: perk points and the skill tree they buy into, prestige past the top level, the
+ * weekly crown, and the shared vault. Everything a node changes elsewhere — member cap, ally slots, contracts, the
+ * home's wait, guild and vanilla experience, potions, deaths, hunger and falls — is asked of here, so a node has one
+ * meaning.
  */
 public final class PerkService implements IGuildsService {
 
@@ -54,6 +56,8 @@ public final class PerkService implements IGuildsService {
     private volatile GuildProgressSettings more;
     private volatile LevelRule levels;
     private volatile PerkRule rule;
+    /** Guildmates near a member, as the together bonus counts them. */
+    private volatile java.util.function.ToIntBiFunction<UUID, Guild> nearby = (player, guild) -> 0;
 
     /** @param vaults where guild vaults live — required: "no store" must never read as "an empty vault" */
     public PerkService(GuildBook book, ProgressBook progress, GuildNotifier notify, VaultStore vaults,
@@ -75,11 +79,25 @@ public final class PerkService implements IGuildsService {
 
     public void progressSettings(GuildProgressSettings more) {
         this.more = more;
-        this.rule = new PerkRule(more.pointsPerPrestige(), more.pointsPerCrown(), Duration.ofDays(more.respecDays()));
+        this.rule = new PerkRule(GuildTree.shipped(), more.pointsPerPrestige(), more.pointsPerCrown(),
+                Duration.ofDays(more.respecDays()));
     }
 
     public PerkRule rule() {
         return rule;
+    }
+
+    /** How many guildmates are near a member: for the nodes that only work with one near. */
+    public void nearby(java.util.function.ToIntBiFunction<UUID, Guild> counted) {
+        this.nearby = counted == null ? (player, guild) -> 0 : counted;
+    }
+
+    public int level(Guild guild) {
+        return levels.levelOf(guild.xp());
+    }
+
+    public int topLevel() {
+        return levels.topLevel();
     }
 
     private long now() {
@@ -114,25 +132,59 @@ public final class PerkService implements IGuildsService {
     }
 
     public int extraMembers(Guild guild) {
-        return PerkRule.extraMembers(standing(guild));
+        return rule.extraMembers(standing(guild));
     }
 
     public int extraAllies(Guild guild) {
-        return PerkRule.extraAllies(standing(guild));
+        return rule.extraAllies(standing(guild));
     }
 
-    /** The guild's experience bonus from perks and prestige, in percent. */
+    public int extraContracts(Guild guild) {
+        return rule.extraContracts(standing(guild));
+    }
+
+    public int contractRewardPercent(Guild guild) {
+        return rule.contractRewardPercent(standing(guild));
+    }
+
+    /** The guild's experience bonus from the tree and prestige, in percent. */
     public int guildXpPercent(Guild guild) {
-        return PerkRule.guildXpPercent(standing(guild), more.percentPerPrestige());
+        return rule.guildXpPercent(standing(guild), more.percentPerPrestige());
+    }
+
+    /** The bonus for experience from {@code source}, in percent; and the tree's together bonus once a guildmate is near. */
+    public int sourceXpPercent(Guild guild, XpSource source, int guildmatesNear) {
+        Standing standing = standing(guild);
+        return rule.sourcePercent(standing, source) + (guildmatesNear > 0 ? rule.togetherPercent(standing) : 0);
     }
 
     public int homeTravelPercent(Guild guild) {
-        return PerkRule.homeTravelPercent(standing(guild));
+        return rule.homeTravelPercent(standing(guild));
+    }
+
+    private int ofMember(UUID player, java.util.function.ToIntFunction<Standing> what) {
+        return book.guildOf(player).map(guild -> what.applyAsInt(standing(guild))).orElse(0);
+    }
+
+    /** The chance, in percent, a member keeps their levels when they die. */
+    public int keepLevelsPercent(UUID player) {
+        return ofMember(player, rule::keepLevelsPercent);
+    }
+
+    /** The chance, in percent, a member's hunger does not go down. */
+    public int hungerSavePercent(UUID player) {
+        return ofMember(player, rule::hungerSavePercent);
+    }
+
+    /** How much less fall damage a member takes, in percent. */
+    public int fallDamagePercent(UUID player) {
+        return ofMember(player, rule::fallDamagePercent);
     }
 
     // ------------------------------------------------------------------ buying and taking back
 
-    public GuildOutcome raise(UUID actor, Perk perk) {
+    /** Takes the next rank of the skill tree node {@code node} for the actor's guild. */
+    public GuildOutcome raise(UUID actor, String node) {
         Optional<Guild> found = book.guildOf(actor);
         if (found.isEmpty()) {
             return GuildOutcome.NO_GUILD;
@@ -142,14 +194,16 @@ public final class PerkService implements IGuildsService {
             return GuildOutcome.NOT_ALLOWED;
         }
         int level = levels.levelOf(guild.xp());
+        PerkRule now = rule;
         GuildOutcome[] answer = {GuildOutcome.SUCCESS};
         Standing after = progress.standing(guild.id().value(), () -> levelPointsSoFar(guild), standing -> {
-            answer[0] = rule.mayRaise(standing, perk, level);
-            return answer[0].isSuccess() ? standing.withPerk(perk, standing.rank(perk) + 1) : standing;
+            answer[0] = now.mayRaise(standing, node, level, levels.topLevel());
+            return answer[0].isSuccess() ? standing.withRank(node, standing.rank(node) + 1) : standing;
         });
         if (answer[0].isSuccess()) {
-            log(guild, GuildEvent.Kind.PERK, actor, perk.title() + " " + after.rank(perk));
-            notify.members(guild, "guilds.perk.bought", "perk", perk.title(), "rank", after.rank(perk),
+            String title = now.tree().node(node).map(de.raindancer.core.ui.tree.TreeNode::title).orElse(node);
+            log(guild, GuildEvent.Kind.PERK, actor, title + " " + after.rank(node));
+            notify.members(guild, "guilds.perk.bought", "perk", title, "rank", after.rank(node),
                     "player", notify.name(actor));
         }
         return answer[0];
@@ -276,32 +330,43 @@ public final class PerkService implements IGuildsService {
 
     // ------------------------------------------------------------------ what members feel
 
-    /** Keeps a member's perk effects on, on their own thread. Called every few seconds per online member. */
+    /** Keeps a member's potions from the tree on, on their own thread. Called every few seconds per online member. */
     public void refreshEffects(Player player) {
         Optional<Guild> found = book.guildOf(player.getUniqueId());
-        Standing standing = found.map(this::standing).orElse(Standing.NONE);
-        renew(player, PotionEffectType.HASTE, PerkRule.hasteAmplifier(standing));
-        renew(player, PotionEffectType.LUCK, PerkRule.luckAmplifier(standing));
+        if (found.isEmpty()) {
+            return;
+        }
+        Standing standing = standing(found.get());
+        boolean rallied = nearby.applyAsInt(player.getUniqueId(), found.get()) > 0;
+        rule.potions(standing, rallied).forEach((key, amplifier) -> {
+            PotionEffectType type = org.bukkit.Registry.EFFECT.get(org.bukkit.NamespacedKey.minecraft(key));
+            if (type != null) {
+                renew(player, type, amplifier);
+            }
+        });
     }
 
     private static void renew(Player player, PotionEffectType type, int amplifier) {
         if (amplifier < 0) {
             return;
         }
+        // Night vision flickers through its last ten seconds: it is given longer, so it never gets there.
+        int lasting = type == PotionEffectType.NIGHT_VISION ? EFFECT_TICKS + 20 * 15 : EFFECT_TICKS;
+        int renewBelow = type == PotionEffectType.NIGHT_VISION ? RENEW_BELOW_TICKS + 20 * 15 : RENEW_BELOW_TICKS;
         PotionEffect current = player.getPotionEffect(type);
         if (current != null && (current.getAmplifier() > amplifier
-                || (current.getAmplifier() == amplifier && (current.isInfinite() || current.getDuration() > RENEW_BELOW_TICKS)))) {
+                || (current.getAmplifier() == amplifier && (current.isInfinite() || current.getDuration() > renewBelow)))) {
             return;
         }
-        player.addPotionEffect(new PotionEffect(type, EFFECT_TICKS, amplifier, true, false, true));
+        player.addPotionEffect(new PotionEffect(type, lasting, amplifier, true, false, true));
     }
 
-    /** Vanilla experience a member picks up, with their guild's Scholar perk. */
+    /** Vanilla experience a member picks up, with their guild's Scholar and friends. */
     public int vanillaXp(UUID player, int amount) {
         if (amount <= 0) {
             return amount;
         }
-        int percent = book.guildOf(player).map(guild -> PerkRule.vanillaXpPercent(standing(guild))).orElse(0);
+        int percent = ofMember(player, rule::vanillaXpPercent);
         return percent <= 0 ? amount : (int) Math.min(Integer.MAX_VALUE, (long) amount * (100 + percent) / 100);
     }
 
@@ -353,7 +418,7 @@ public final class PerkService implements IGuildsService {
 
     /** How many stacks the vault takes now; what it already holds above that is kept, only deposits wait. */
     public int vaultSlots(Guild guild) {
-        return PerkRule.vaultSlots(standing(guild));
+        return rule.vaultSlots(standing(guild));
     }
 
     /**

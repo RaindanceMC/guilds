@@ -8,7 +8,6 @@ import de.raindancer.modules.guilds.model.GuildEvent;
 import de.raindancer.modules.guilds.model.GuildOutcome;
 import de.raindancer.modules.guilds.model.HomeSpot;
 import de.raindancer.modules.guilds.model.Invitation;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.model.XpSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +57,7 @@ class GuildMigrationTest {
         ProgressBook progress = new ProgressBook(database);
         progress.load();
         progress.add(guild.id().value(), XpSource.MINE, 77, 2_900);
-        progress.standing(guild.id().value(), () -> 4, standing -> standing.withPerk(Perk.HASTE, 1));
+        progress.standing(guild.id().value(), () -> 4, standing -> standing.withRank("haste", 1));
         progress.flush();
         return guild;
     }
@@ -84,7 +83,7 @@ class GuildMigrationTest {
         ProgressBook progress = new ProgressBook(shared);
         progress.load();
         assertThat(progress.totals(elves.id().value())).containsEntry(XpSource.MINE, 77L);
-        assertThat(progress.standing(elves.id().value(), () -> 0).rank(Perk.HASTE)).isEqualTo(1);
+        assertThat(progress.standing(elves.id().value(), () -> 0).rank("haste")).isEqualTo(1);
         assertThat(progress.weekXp(2_900)).containsEntry(elves.id().value(), 77L);
         assertThat(problems).isEmpty();
     }

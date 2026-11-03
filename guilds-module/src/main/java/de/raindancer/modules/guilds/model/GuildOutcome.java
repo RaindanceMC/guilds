@@ -59,6 +59,11 @@ public enum GuildOutcome {
     PERK_MAXED,
     LEVEL_TOO_LOW,
     NO_PERK_POINTS,
+    /** No node of the skill tree next to it is taken yet. */
+    PERK_LOCKED,
+    /** Shut by the other side of its choice. */
+    PERK_BARRED,
+    PERK_UNKNOWN,
     NOTHING_TO_RESPEC,
     ON_COOLDOWN,
     NOT_TOP_LEVEL,

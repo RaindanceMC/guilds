@@ -1,6 +1,6 @@
 package de.raindancer.modules.guilds.model;
 
-import java.util.EnumMap;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -9,10 +9,10 @@ import java.util.Map;
  * @param levelPoints points from levels ever gained — a prestige resets the level, never these
  * @param prestige    how often the guild went past the top and started again
  * @param crowns      weeks it earned the most experience of all guilds
- * @param perks       the rank of each perk it bought; missing means 0
+ * @param nodes       the rank of each skill tree node it took, by node id; missing means 0
  * @param respecAt    when it last took its points back, epoch millis; 0 for never
  */
-public record Standing(int levelPoints, int prestige, int crowns, Map<Perk, Integer> perks, long respecAt) {
+public record Standing(int levelPoints, int prestige, int crowns, Map<String, Integer> nodes, long respecAt) {
 
     public static final Standing NONE = new Standing(0, 0, 0, Map.of(), 0);
 
@@ -20,41 +20,41 @@ public record Standing(int levelPoints, int prestige, int crowns, Map<Perk, Inte
         levelPoints = Math.max(0, levelPoints);
         prestige = Math.max(0, prestige);
         crowns = Math.max(0, crowns);
-        Map<Perk, Integer> copy = new EnumMap<>(Perk.class);
-        if (perks != null) {
-            perks.forEach((perk, rank) -> {
-                if (rank != null && rank > 0) {
-                    copy.put(perk, Math.min(rank, perk.maxRank()));
+        Map<String, Integer> copy = new HashMap<>();
+        if (nodes != null) {
+            nodes.forEach((node, rank) -> {
+                if (node != null && rank != null && rank > 0) {
+                    copy.put(node, rank);
                 }
             });
         }
-        perks = Map.copyOf(copy);
+        nodes = Map.copyOf(copy);
     }
 
-    public int rank(Perk perk) {
-        return perks.getOrDefault(perk, 0);
+    public int rank(String node) {
+        return nodes.getOrDefault(node, 0);
     }
 
+    /** Ranks taken, whatever they cost. */
     public int spent() {
-        return perks.values().stream().mapToInt(Integer::intValue).sum();
+        return nodes.values().stream().mapToInt(Integer::intValue).sum();
     }
 
     public Standing withLevelPoints(int points) {
-        return new Standing(points, prestige, crowns, perks, respecAt);
+        return new Standing(points, prestige, crowns, nodes, respecAt);
     }
 
     public Standing withPrestige(int times) {
-        return new Standing(levelPoints, times, crowns, perks, respecAt);
+        return new Standing(levelPoints, times, crowns, nodes, respecAt);
     }
 
     public Standing withCrowns(int won) {
-        return new Standing(levelPoints, prestige, won, perks, respecAt);
+        return new Standing(levelPoints, prestige, won, nodes, respecAt);
     }
 
-    public Standing withPerk(Perk perk, int rank) {
-        Map<Perk, Integer> next = new EnumMap<>(Perk.class);
-        next.putAll(perks);
-        next.put(perk, rank);
+    public Standing withRank(String node, int rank) {
+        Map<String, Integer> next = new HashMap<>(nodes);
+        next.put(node, rank);
         return new Standing(levelPoints, prestige, crowns, next, respecAt);
     }
 

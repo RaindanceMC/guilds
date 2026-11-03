@@ -19,7 +19,7 @@ sections:
   - question: How do I open the guild page?
     title: The guild page
     text: |
-      Type {run:/guild}. In a guild it is your guild's page: members, invitations and applications, ranks, allies and rivals, bank, home, log, level and contracts, perks, enchantments and the guild's own choices. Not in a guild, it offers to found one, to browse every guild, and to answer your invitations. {cmd:/g}, {cmd:/guilds} and {cmd:/clan} all do the same.
+      Type {run:/guild}. In a guild it is your guild's page: members, invitations and applications, ranks, allies and rivals, bank, home, log, level and contracts, perks and the skill tree, enchantments and the guild's own choices. Not in a guild, it offers to found one, to browse every guild, and to answer your invitations. {cmd:/g}, {cmd:/guilds} and {cmd:/clan} all do the same.
   - question: How do I found a guild?
     title: Founding
     text: |

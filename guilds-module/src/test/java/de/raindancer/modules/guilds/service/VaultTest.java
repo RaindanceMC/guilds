@@ -10,7 +10,6 @@ import de.raindancer.modules.guilds.model.Fixtures;
 import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildOutcome;
 import de.raindancer.modules.guilds.model.GuildPermission;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.model.Rank;
 import de.raindancer.modules.guilds.store.GuildBook;
 import de.raindancer.modules.guilds.store.GuildsDatabase;
@@ -78,7 +77,8 @@ class VaultTest {
         guilds.disbandGuard(perks::sealForDisband, perks::unseal);
         Guild elves = Fixtures.guild("Elves").withXp(1_000_000);
         assertThat(book.create(elves)).isEqualTo(GuildOutcome.SUCCESS);
-        assertThat(perks.raise(LEADER, Perk.VAULT)).isEqualTo(GuildOutcome.SUCCESS);
+        assertThat(perks.raise(LEADER, "recruiter")).isEqualTo(GuildOutcome.SUCCESS);
+        assertThat(perks.raise(LEADER, "vault")).isEqualTo(GuildOutcome.SUCCESS);
     }
 
     @AfterEach

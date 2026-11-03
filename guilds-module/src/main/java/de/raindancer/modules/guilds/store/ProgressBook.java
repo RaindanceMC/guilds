@@ -5,7 +5,6 @@ import de.raindancer.core.platform.network.NetworkBus;
 import de.raindancer.modules.guilds.model.Activity;
 import de.raindancer.modules.guilds.model.Boost;
 import de.raindancer.modules.guilds.model.Contract;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.model.Standing;
 import de.raindancer.modules.guilds.model.XpSource;
 
@@ -54,7 +53,7 @@ public final class ProgressBook {
     private static final class Rows {
         final Map<XpSource, Long> totals = new EnumMap<>(XpSource.class);
         final List<Contract> contracts = new ArrayList<>();
-        final Map<Perk, Integer> perks = new EnumMap<>(Perk.class);
+        final Map<String, Integer> perks = new HashMap<>();
         final Map<Long, Long> weeks = new HashMap<>();
         Standing standing;
     }
@@ -299,8 +298,8 @@ public final class ProgressBook {
                 while (rows.next()) {
                     int rank = rows.getInt(3);
                     String of = rows.getString(1);
-                    Perk.named(rows.getString(2)).ifPresent(perk ->
-                            by.computeIfAbsent(of, key -> new Rows()).perks.put(perk, rank));
+                    // A skill tree node by id — the perks of before the tree are nodes of the same id.
+                    by.computeIfAbsent(of, key -> new Rows()).perks.put(rows.getString(2), rank);
                 }
             }
         }
@@ -505,16 +504,18 @@ public final class ProgressBook {
             update.setString(5, guild);
             update.executeUpdate();
         }
-        for (Perk perk : Perk.values()) {
-            int was = before.rank(perk);
-            int is = after.rank(perk);
+        java.util.Set<String> nodes = new java.util.HashSet<>(before.nodes().keySet());
+        nodes.addAll(after.nodes().keySet());
+        for (String node : nodes) {
+            int was = before.rank(node);
+            int is = after.rank(node);
             if (was == is) {
                 continue;
             }
             if (is == 0) {
                 try (PreparedStatement delete = connection.prepareStatement("DELETE FROM guild_perk WHERE guild = ? AND perk = ?")) {
                     delete.setString(1, guild);
-                    delete.setString(2, perk.key());
+                    delete.setString(2, node);
                     delete.executeUpdate();
                 }
             } else {
@@ -522,7 +523,7 @@ public final class ProgressBook {
                         INSERT INTO guild_perk (guild, perk, rank) VALUES (?, ?, ?)
                         ON CONFLICT (guild, perk) DO UPDATE SET rank = excluded.rank""")) {
                     upsert.setString(1, guild);
-                    upsert.setString(2, perk.key());
+                    upsert.setString(2, node);
                     upsert.setInt(3, is);
                     upsert.executeUpdate();
                 }

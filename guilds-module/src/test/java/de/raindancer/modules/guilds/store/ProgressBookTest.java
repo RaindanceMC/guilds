@@ -5,7 +5,6 @@ import de.raindancer.modules.guilds.model.Boost;
 import de.raindancer.modules.guilds.model.Contract;
 import de.raindancer.modules.guilds.model.Fixtures;
 import de.raindancer.modules.guilds.model.Guild;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.model.Standing;
 import de.raindancer.modules.guilds.model.XpSource;
 import org.junit.jupiter.api.AfterEach;
@@ -168,8 +167,8 @@ class ProgressBookTest {
         smp.standing(elves, () -> 1);
         servers.settle();
         List<Integer> bought = together(
-                () -> spend(smp, Perk.HASTE),
-                () -> spend(arena, Perk.LUCK));
+                () -> spend(smp, "haste"),
+                () -> spend(arena, "luck"));
         assertThat(bought.stream().mapToInt(Integer::intValue).sum()).isEqualTo(1);
         servers.settle();
         Standing now = servers.progress("third").standing(elves, () -> 0);
@@ -177,7 +176,7 @@ class ProgressBookTest {
         assertThat(now.levelPoints()).isEqualTo(1);
     }
 
-    private int spend(ProgressBook book, Perk perk) {
+    private int spend(ProgressBook book, String perk) {
         int[] spent = new int[1];
         book.standing(elves, () -> 1, standing -> {
             if (standing.levelPoints() - standing.spent() < 1) {
@@ -185,7 +184,7 @@ class ProgressBookTest {
                 return standing;
             }
             spent[0] = 1;
-            return standing.withPerk(perk, standing.rank(perk) + 1);
+            return standing.withRank(perk, standing.rank(perk) + 1);
         });
         return spent[0];
     }

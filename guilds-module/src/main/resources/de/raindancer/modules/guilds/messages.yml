@@ -79,8 +79,9 @@ guilds:
     limit: "<aqua>Type the daily limit in chat, or <white>none</white>. <gray>Or <white>cancel</white>."
     member-limit: "<aqua>Type <white><player></white>'s own daily limit in chat, <white>none</white>, or <white>rank</white> for their rank's. <gray>Or <white>cancel</white>."
   perk:
-    bought: "<gold><white><player></white> bought <white><perk></white> <white><rank></white> for the guild."
-    respecced: "<gray><white><player></white> took every perk back. The points are there to spend again."
+    bought: "<gold><white><player></white> took <white><perk></white> <white><rank></white> in the guild skill tree."
+    levels-kept: "<light_purple>Your guild's lore kept your levels through death."
+    respecced: "<gray><white><player></white> unlearnt the whole skill tree. The points are there to spend again."
   prestige:
     announced: "<gold><guild><gold> went past the top and starts again — prestige <white><stars></white>! <gray>Their members earn <white>+<bonus>%</white> for good."
   crown:
@@ -192,6 +193,9 @@ guilds:
     perk-maxed: "<red>That perk is as high as it goes."
     level-too-low: "<red>The guild's level is too low for that rank yet. Grind on."
     no-perk-points: "<red>No perk points left. <gray>Level up, prestige or win the weekly crown for more."
+    perk-locked: "<red>Take a node next to it first."
+    perk-barred: "<red>Shut: the guild took the other side of this choice."
+    perk-unknown: "<red>There is no such node in the guild skill tree."
     nothing-to-respec: "<red>Nothing is bought yet, so there is nothing to take back."
     on-cooldown: "<red>Not again so soon."
     not-top-level: "<red>Prestige is for a guild at the top level. Not there yet."

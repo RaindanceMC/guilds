@@ -1,0 +1,115 @@
+# The guild skill tree, read by Core's SkillTree. Five branches, each filling five columns by three rows (at: [column,
+# row]); a node needs ONE of what it `requires` (a neighbour in its branch, joined by a line) and is shut while one of
+# what it `excludes` is taken. `effects` are per rank (Perk.java says what each means), `cost` is perk points per rank.
+# `level` is the guild level the first rank needs and `level-step` how many more each further rank needs; a level past
+# the server's top level counts as the top level.
+#
+# vault, haste, luck, scholar, prosperous, recruiter, diplomat and pathfinder are the perks guilds bought before the
+# tree: same ids, ranks, costs and levels, so what a guild bought is where it was.
+branches:
+  hall:
+    title: The Hall
+    icon: bell
+    blurb: Room for more members and allies, the vault, the week's contracts.
+  craft:
+    title: The Workshop
+    icon: golden_pickaxe
+    blurb: Hands that dig, grow and trade, and the experience it earns.
+  lore:
+    title: The Library
+    icon: enchanted_book
+    blurb: More experience for members and guild; levels kept through death.
+  road:
+    title: The Road
+    icon: compass
+    blurb: Swift feet, a quick way home, the sea and fire.
+  banner:
+    title: The Banner
+    icon: red_banner
+    blurb: Strength in numbers, near guildmates; rivals, raids and bosses.
+
+nodes:
+  # ---------------------------------------------------------------- The Hall
+  recruiter: {branch: hall, at: [0, 1], title: Recruiter, icon: player_head, ranks: 3, level: 4, level-step: 4, effects: {members: 2}}
+  vault: {branch: hall, at: [0, 0], title: Guild Vault, icon: ender_chest, ranks: 6, level: 2, level-step: 3, requires: [recruiter], effects: {vault_rows: 1}}
+  diplomat: {branch: hall, at: [0, 2], title: Diplomat, icon: white_banner, ranks: 2, level: 7, level-step: 6, requires: [recruiter], effects: {allies: 1}}
+  quartermaster: {branch: hall, at: [1, 0], title: Quartermaster, icon: writable_book, ranks: 3, level: 6, level-step: 2, requires: [recruiter], effects: {contract_reward: 10}}
+  notice_board: {branch: hall, at: [1, 1], title: Notice Board, icon: oak_sign, level: 8, requires: [recruiter], effects: {contracts: 1}}
+  town_crier: {branch: hall, at: [1, 2], title: Town Crier, icon: goat_horn, ranks: 3, level: 6, level-step: 3, requires: [recruiter], effects: {members: 1}}
+  great_table: {branch: hall, at: [2, 1], title: Great Table, icon: crafting_table, ranks: 2, level: 10, level-step: 5, requires: [quartermaster, town_crier], effects: {members: 2}}
+  charter: {branch: hall, at: [2, 0], title: Merchant Charter, icon: filled_map, choice: true, cost: 2, level: 12, requires: [quartermaster], excludes: [embassy], effects: {contract_reward: 30}}
+  embassy: {branch: hall, at: [2, 2], title: Embassy, icon: cyan_banner, choice: true, cost: 2, level: 12, requires: [town_crier], excludes: [charter], effects: {allies: 2}}
+  ledger_keepers: {branch: hall, at: [3, 0], title: Ledger Keepers, icon: book, ranks: 2, level: 15, level-step: 3, requires: [charter, great_table], effects: {contract_reward: 10}}
+  banner_hall: {branch: hall, at: [3, 1], title: Banner Hall, icon: loom, ranks: 2, level: 15, level-step: 4, requires: [great_table], effects: {members: 2}}
+  ambassadors: {branch: hall, at: [3, 2], title: Ambassadors, icon: emerald, level: 16, requires: [embassy, great_table], effects: {allies: 1}}
+  bounty_board: {branch: hall, at: [4, 0], title: Bounty Board, icon: target, cost: 2, level: 19, requires: [ledger_keepers], effects: {contracts: 1}}
+  grand_hall: {branch: hall, at: [4, 1], title: Grand Hall, icon: bell, capstone: true, cost: 3, level: 25, requires: [ledger_keepers, banner_hall, ambassadors], effects: {members: 4, allies: 1, contracts: 1}}
+  open_gates: {branch: hall, at: [4, 2], title: Open Gates, icon: oak_fence_gate, cost: 2, level: 20, requires: [ambassadors], effects: {members: 3}}
+
+  # ---------------------------------------------------------------- The Workshop
+  haste: {branch: craft, at: [0, 1], title: "Miner's Haste", icon: golden_pickaxe, ranks: 2, level: 4, level-step: 8, effects: {haste: 1}}
+  luck: {branch: craft, at: [0, 0], title: "Fortune's Favour", icon: rabbit_foot, ranks: 2, level: 6, level-step: 8, requires: [haste], effects: {luck: 1}}
+  green_thumbs: {branch: craft, at: [0, 2], title: Green Thumbs, icon: wheat, ranks: 3, level: 3, level-step: 2, requires: [haste], effects: {xp_harvest: 10}}
+  prospectors: {branch: craft, at: [1, 0], title: Prospectors, icon: iron_pickaxe, ranks: 3, level: 5, level-step: 2, requires: [haste], effects: {xp_mine: 10}}
+  hagglers: {branch: craft, at: [1, 1], title: Hagglers, icon: emerald, ranks: 3, level: 6, level-step: 2, requires: [haste], effects: {xp_trade: 15}}
+  herders: {branch: craft, at: [1, 2], title: Herders, icon: lead, ranks: 3, level: 5, level-step: 2, requires: [haste], effects: {xp_breed: 15}}
+  guild_market: {branch: craft, at: [2, 1], title: Guild Market, icon: barrel, cost: 2, level: 10, requires: [prospectors, herders], effects: {hero: 1}}
+  deep_delvers: {branch: craft, at: [2, 0], title: Deep Delvers, icon: deepslate_diamond_ore, choice: true, cost: 2, level: 12, requires: [prospectors], excludes: [harvest_festival], effects: {xp_mine: 30, haste: 1}}
+  harvest_festival: {branch: craft, at: [2, 2], title: Harvest Festival, icon: hay_block, choice: true, cost: 2, level: 12, requires: [herders], excludes: [deep_delvers], effects: {xp_harvest: 30, xp_breed: 30, hunger_save: 20}}
+  lamplighters: {branch: craft, at: [3, 0], title: Lamplighters, icon: lantern, level: 14, requires: [deep_delvers, guild_market], effects: {night_vision: 1}}
+  fair_prices: {branch: craft, at: [3, 1], title: Fair Prices, icon: bell, cost: 2, level: 16, requires: [guild_market], effects: {hero: 1}}
+  full_larders: {branch: craft, at: [3, 2], title: Full Larders, icon: bread, ranks: 3, level: 14, level-step: 2, requires: [harvest_festival, guild_market], effects: {hunger_save: 10}}
+  gemcutters: {branch: craft, at: [4, 0], title: Gemcutters, icon: diamond, ranks: 2, level: 18, level-step: 2, requires: [lamplighters], effects: {xp_mine: 10}}
+  master_artisans: {branch: craft, at: [4, 1], title: Master Artisans, icon: smithing_table, capstone: true, cost: 3, level: 25, requires: [lamplighters, fair_prices, full_larders], effects: {haste: 1, luck: 1, hero: 1}}
+  anglers: {branch: craft, at: [4, 2], title: Anglers, icon: fishing_rod, ranks: 2, level: 18, level-step: 2, requires: [full_larders], effects: {xp_fish: 15}}
+
+  # ---------------------------------------------------------------- The Library
+  scholar: {branch: lore, at: [0, 1], title: Scholar, icon: experience_bottle, ranks: 3, level: 3, level-step: 4, effects: {vanilla_xp: 10}}
+  prosperous: {branch: lore, at: [0, 0], title: Prosperous, icon: emerald, ranks: 3, level: 5, level-step: 5, requires: [scholar], effects: {guild_xp: 5}}
+  chroniclers: {branch: lore, at: [0, 2], title: Chroniclers, icon: knowledge_book, ranks: 2, level: 3, level-step: 3, requires: [scholar], effects: {xp_advancement: 25}}
+  spellwrights: {branch: lore, at: [1, 0], title: Spellwrights, icon: lapis_lazuli, ranks: 3, level: 6, level-step: 2, requires: [scholar], effects: {xp_enchant: 15}}
+  daily_study: {branch: lore, at: [1, 1], title: Daily Study, icon: clock, ranks: 3, level: 5, level-step: 2, requires: [scholar], effects: {xp_play: 10}}
+  soul_ward: {branch: lore, at: [1, 2], title: Soul Ward, icon: soul_lantern, ranks: 2, level: 6, level-step: 3, requires: [scholar], effects: {keep_levels: 15}}
+  archive: {branch: lore, at: [2, 1], title: The Archive, icon: bookshelf, ranks: 2, level: 10, level-step: 4, requires: [spellwrights, soul_ward], effects: {guild_xp: 5}}
+  bookworms: {branch: lore, at: [2, 0], title: Bookworms, icon: book, choice: true, cost: 2, level: 12, requires: [spellwrights], excludes: [annals], effects: {vanilla_xp: 30}}
+  annals: {branch: lore, at: [2, 2], title: Annals, icon: writable_book, choice: true, cost: 2, level: 12, requires: [soul_ward], excludes: [bookworms], effects: {guild_xp: 10}}
+  enchanters_circle: {branch: lore, at: [3, 0], title: "Enchanters' Circle", icon: enchanting_table, ranks: 2, level: 15, level-step: 3, requires: [bookworms, archive], effects: {xp_enchant: 15}}
+  mentors: {branch: lore, at: [3, 1], title: Mentors, icon: lectern, ranks: 2, level: 15, level-step: 3, requires: [archive], effects: {vanilla_xp: 10}}
+  last_words: {branch: lore, at: [3, 2], title: Last Words, icon: totem_of_undying, ranks: 2, level: 16, level-step: 3, requires: [annals, archive], effects: {keep_levels: 15}}
+  lorekeepers: {branch: lore, at: [4, 0], title: Lorekeepers, icon: chiseled_bookshelf, cost: 2, level: 19, requires: [enchanters_circle], effects: {guild_xp: 5}}
+  undying_lore: {branch: lore, at: [4, 1], title: Undying Lore, icon: enchanted_book, capstone: true, cost: 3, level: 25, requires: [enchanters_circle, mentors, last_words], effects: {keep_levels: 100}}
+  epitaphs: {branch: lore, at: [4, 2], title: Epitaphs, icon: skeleton_skull, cost: 2, level: 19, requires: [last_words], effects: {keep_levels: 10}}
+
+  # ---------------------------------------------------------------- The Road
+  pathfinder: {branch: road, at: [0, 1], title: Pathfinder, icon: ender_pearl, ranks: 2, level: 4, level-step: 6, effects: {home_travel: 50}}
+  fleet_foot: {branch: road, at: [0, 0], title: Fleet Foot, icon: sugar, level: 5, requires: [pathfinder], effects: {speed: 1}}
+  soft_landings: {branch: road, at: [0, 2], title: Soft Landings, icon: hay_block, ranks: 2, level: 3, level-step: 3, requires: [pathfinder], effects: {fall_damage: 15}}
+  long_strides: {branch: road, at: [1, 0], title: Long Strides, icon: rabbit_hide, level: 7, requires: [pathfinder], effects: {jump: 1}}
+  cartographers: {branch: road, at: [1, 1], title: Cartographers, icon: map, level: 6, requires: [pathfinder], effects: {xp_advancement: 25}}
+  sailors: {branch: road, at: [1, 2], title: Sailors, icon: turtle_helmet, level: 7, requires: [pathfinder], effects: {water_breathing: 1}}
+  trailblazers: {branch: road, at: [2, 1], title: Trailblazers, icon: golden_boots, cost: 2, level: 11, requires: [long_strides, sailors], effects: {speed: 1}}
+  mountain_goats: {branch: road, at: [2, 0], title: Mountain Goats, icon: goat_horn, choice: true, cost: 2, level: 13, requires: [long_strides], excludes: [sea_legs], effects: {jump: 1, fall_damage: 40}}
+  sea_legs: {branch: road, at: [2, 2], title: Sea Legs, icon: heart_of_the_sea, choice: true, cost: 2, level: 13, requires: [sailors], excludes: [mountain_goats], effects: {dolphin: 1, xp_fish: 20}}
+  featherfall: {branch: road, at: [3, 0], title: Featherfall, icon: feather, level: 15, requires: [mountain_goats, trailblazers], effects: {fall_damage: 15}}
+  owl_eyes: {branch: road, at: [3, 1], title: Owl Eyes, icon: ender_eye, level: 15, requires: [trailblazers], effects: {night_vision: 1}}
+  tide_walkers: {branch: road, at: [3, 2], title: Tide Walkers, icon: conduit, cost: 2, level: 16, requires: [sea_legs, trailblazers], effects: {conduit: 1}}
+  explorers: {branch: road, at: [4, 0], title: Explorers, icon: recovery_compass, cost: 2, level: 18, requires: [featherfall], effects: {xp_advancement: 25}}
+  phoenix_road: {branch: road, at: [4, 1], title: Phoenix Road, icon: blaze_powder, capstone: true, cost: 3, level: 25, requires: [featherfall, owl_eyes, tide_walkers], effects: {fire_resistance: 1}}
+  deep_divers: {branch: road, at: [4, 2], title: Deep Divers, icon: nautilus_shell, ranks: 2, level: 18, level-step: 2, requires: [tide_walkers], effects: {xp_fish: 15}}
+
+  # ---------------------------------------------------------------- The Banner
+  shoulder_to_shoulder: {branch: banner, at: [0, 1], title: Shoulder to Shoulder, icon: campfire, ranks: 3, level: 3, level-step: 2, effects: {together: 5}}
+  monster_hunters: {branch: banner, at: [0, 0], title: Monster Hunters, icon: zombie_head, ranks: 3, level: 4, level-step: 2, requires: [shoulder_to_shoulder], effects: {xp_monster: 10}}
+  raiders: {branch: banner, at: [0, 2], title: Raid Breakers, icon: ominous_bottle, ranks: 2, level: 5, level-step: 3, requires: [shoulder_to_shoulder], effects: {xp_raid: 25}}
+  rally: {branch: banner, at: [1, 0], title: Rally, icon: golden_apple, cost: 2, level: 8, requires: [shoulder_to_shoulder], effects: {rally_regeneration: 1}}
+  war_drums: {branch: banner, at: [1, 1], title: War Drums, icon: note_block, ranks: 2, level: 8, level-step: 3, requires: [shoulder_to_shoulder], effects: {together: 5}}
+  rivalry: {branch: banner, at: [1, 2], title: Rivalry, icon: iron_sword, ranks: 2, level: 7, level-step: 3, requires: [shoulder_to_shoulder], effects: {xp_rival: 25}}
+  banner_bearers: {branch: banner, at: [2, 1], title: Banner Bearers, icon: red_banner, cost: 2, level: 10, requires: [rally, rivalry], effects: {rally_speed: 1}}
+  vanguard: {branch: banner, at: [2, 0], title: Vanguard, icon: netherite_sword, choice: true, cost: 2, level: 13, requires: [rally], excludes: [bulwark], effects: {rally_strength: 1}}
+  bulwark: {branch: banner, at: [2, 2], title: Bulwark, icon: shield, choice: true, cost: 2, level: 13, requires: [rivalry], excludes: [vanguard], effects: {rally_resistance: 1}}
+  bosshunters: {branch: banner, at: [3, 0], title: Bosshunters, icon: wither_skeleton_skull, ranks: 2, level: 15, level-step: 3, requires: [vanguard, banner_bearers], effects: {xp_boss: 25}}
+  brothers_in_arms: {branch: banner, at: [3, 1], title: Brothers in Arms, icon: totem_of_undying, cost: 2, level: 16, requires: [banner_bearers], effects: {together: 10}}
+  shield_wall: {branch: banner, at: [3, 2], title: Shield Wall, icon: golden_chestplate, cost: 2, level: 16, requires: [bulwark, banner_bearers], effects: {rally_absorption: 1}}
+  dragonslayers: {branch: banner, at: [4, 0], title: Dragonslayers, icon: dragon_head, cost: 2, level: 19, requires: [bosshunters], effects: {xp_boss: 25}}
+  warband: {branch: banner, at: [4, 1], title: Warband, icon: beacon, capstone: true, cost: 3, level: 25, requires: [bosshunters, brothers_in_arms, shield_wall], effects: {rally_regeneration: 1, together: 10}}
+  feud: {branch: banner, at: [4, 2], title: Feud, icon: crossbow, cost: 2, level: 19, requires: [shield_wall], effects: {xp_rival: 25}}

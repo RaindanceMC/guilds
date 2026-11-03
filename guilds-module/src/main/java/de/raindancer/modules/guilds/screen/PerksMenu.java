@@ -8,7 +8,6 @@ import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildOutcome;
 import de.raindancer.modules.guilds.model.GuildPermission;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.model.Standing;
 import de.raindancer.modules.guilds.rules.PerkRule;
 import net.kyori.adventure.text.Component;
@@ -23,12 +22,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * The perk tree: what the guild's points bought, what the next rank of each needs, and buying it. Taking the points
- * back and prestige are here too, each behind a confirmation.
+ * The guild's honours: perk points, the five branches of the skill tree (each opens {@link GuildTreeMenu} on its
+ * page), the vault, taking the points back and prestige — the last two behind a confirmation.
  */
 public final class PerksMenu extends Menu implements IGuildsScreen {
-
-    private static final String[] RANKS = {"", "I", "II", "III", "IV", "V", "VI"};
 
     private final GuildsServices services;
 
@@ -45,10 +42,6 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
     @Override
     public String breadcrumb() {
         return "Perks";
-    }
-
-    private static String rank(int rank) {
-        return rank >= 0 && rank < RANKS.length ? RANKS[rank] : String.valueOf(rank);
     }
 
     @Override
@@ -75,53 +68,54 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
         if (standing.crowns() > 0) {
             header.add("<gold>♛ <gray>crowned " + standing.crowns() + " week(s)");
         }
-        set(MenuLayout.HEADER_SUBJECT, Icons.of(Material.NETHER_STAR, "<white>Perk points", header));
-
-        Perk[] perks = Perk.values();
-        for (int index = 0; index < perks.length; index++) {
-            Perk perk = perks[index];
-            int now = standing.rank(perk);
+        var tree = rule.tree();
+        header.add("");
+        header.add("<yellow>Click to open the skill tree.");
+        set(MenuLayout.HEADER_SUBJECT, Icons.of(Material.NETHER_STAR, "<white>Perk points", header),
+                click -> GuildTreeMenu.show(services, viewer, this, 0));
+        for (int index = 0; index < tree.branches().size(); index++) {
+            var branch = tree.branches().get(index);
+            var nodes = tree.nodesOf(branch.id());
+            long taken = nodes.stream().filter(node -> standing.rank(node.id()) > 0).count();
+            int spent = tree.spentIn(standing.nodes(), branch.id());
             List<String> lore = new ArrayList<>();
-            lore.add("<gray>" + perk.description());
+            lore.add("<gray>" + branch.blurb());
             lore.add("");
-            lore.add("<gray>Rank <white>" + (now == 0 ? "none" : rank(now)) + "<gray> of " + rank(perk.maxRank()));
-            GuildOutcome raise = mayBuy ? rule.mayRaise(standing, perk, level) : GuildOutcome.NOT_ALLOWED;
-            if (now < perk.maxRank()) {
-                lore.add("<gray>Rank " + rank(now + 1) + " needs guild level <white>" + perk.levelFor(now + 1)
-                        + "<gray> and a point.");
-                lore.add("");
-                lore.add(raise.isSuccess() ? "<green>Click to buy it." : "<red>" + reason(raise, perk, now));
-            } else {
-                lore.add("<green>As high as it goes.");
+            lore.add("<gray>Nodes taken: <white>" + taken + "<gray> of " + nodes.size());
+            lore.add("<gray>Points spent here: <white>" + spent);
+            lore.add("");
+            lore.add("<yellow>Click to open this branch.");
+            Material icon = Optional.ofNullable(Material.matchMaterial(branch.icon())).orElse(Material.PAPER);
+            var item = Icons.of(icon, (taken > 0 ? "<gold>" : "<white>") + branch.title(), lore);
+            if (taken > 0) {
+                item.editMeta(meta -> meta.setEnchantmentGlintOverride(true));
             }
-            var icon = Icons.of(now > 0 ? perk.icon() : Material.GRAY_DYE,
-                    (now > 0 ? "<gold>" : "<gray>") + perk.title() + (now > 0 ? " " + rank(now) : ""), lore);
-            cell(1 + index / 4, 1 + (index % 4) * 2, icon,
-                    click -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().raise(me, perk)));
+            int page = index;
+            cell(2, index * 2, item, click -> GuildTreeMenu.show(services, viewer, this, page));
         }
 
         GuildOutcome respec = mayBuy ? rule.mayRespec(standing, System.currentTimeMillis()) : GuildOutcome.NOT_ALLOWED;
         long again = rule.respecAgainAt(standing) - System.currentTimeMillis();
         toolbar(2, respec.isSuccess(), Icons.of(Material.GRINDSTONE, "<white>Take the points back",
-                        "<gray>Every perk goes; every point comes back", "<gray>to spend again.",
+                        "<gray>Every node goes; every point comes back", "<gray>to spend again.",
                         "<dark_gray>Once every " + services.xp().progressSettings().respecDays() + " day(s).",
                         "", "<gray>You will be asked first."),
                 respec == GuildOutcome.ON_COOLDOWN ? "Again in " + Times.describe(Duration.ofMillis(Math.max(0, again))) + "."
                         : respec == GuildOutcome.NOTHING_TO_RESPEC ? "Nothing is bought yet." : "Your rank cannot spend points.",
-                click -> new ConfirmScreen(services, viewer, this, "<red>Take every perk back?",
+                click -> new ConfirmScreen(services, viewer, this, "<red>Unlearn the whole skill tree?",
                         List.of("<gray>The guild loses them until the", "<gray>points are spent again."),
                         () -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().respec(me))).open());
         boolean vault = services.perks().hasVault(guild);
         toolbar(6, vault, Icons.of(Material.ENDER_CHEST, "<white>The guild vault",
                         "<gray>" + services.perks().vaultSlots(guild) + " stacks.", "", "<gray>Click to open it."),
-                "Buy the Guild vault perk first.", click -> GuildVaultMenu.show(services, viewer, this));
+                "Take the Guild Vault node first (The Hall).", click -> GuildVaultMenu.show(services, viewer, this));
 
         boolean top = services.xp().levels().isTop(level);
         boolean leader = guild.leader().equals(me);
         if (top && leader) {
             int next = standing.prestige() + 1;
             danger(Icons.of(Material.BEACON, "<gold>Prestige " + PerkRule.stars(next),
-                            "<gray>The guild goes back to level 1 and", "<gray>keeps every perk and point.",
+                            "<gray>The guild goes back to level 1 and", "<gray>keeps every node and point.",
                             "<gray>It earns <white>" + services.xp().progressSettings().pointsPerPrestige()
                                     + "<gray> points, a star in its tag, and",
                             "<white>+" + services.xp().progressSettings().percentPerPrestige() + "%<gray> experience for good.",
@@ -139,17 +133,8 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
         }
     }
 
-    private static String reason(GuildOutcome outcome, Perk perk, int now) {
-        return switch (outcome) {
-            case LEVEL_TOO_LOW -> "Needs guild level " + perk.levelFor(now + 1) + ".";
-            case NO_PERK_POINTS -> "No points left to spend.";
-            case NOT_ALLOWED -> "Your rank cannot spend points.";
-            default -> "Not possible right now.";
-        };
-    }
-
     @Override
     public String describe() {
-        return "the guild's perk tree, taking points back, and prestige";
+        return "the guild's perk points, its skill tree's branches, taking points back, and prestige";
     }
 }

@@ -15,7 +15,7 @@ Needs Java 25 and read access to `packages.tstieh.de` (server ids `packages-rele
 
 ## Plugins
 
-- `guilds-standalone/target/RainsGuilds-0.16.0.jar` — also published as `de.raindancer.modules:guilds-standalone:0.16.0`
+- `guilds-standalone/target/RainsGuilds-0.24.0.jar` — also published as `de.raindancer.modules:guilds-standalone:0.24.0`
 
 ## Versions
 

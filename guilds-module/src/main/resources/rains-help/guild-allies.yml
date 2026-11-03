@@ -18,7 +18,7 @@ sections:
   - question: How many allies may we have?
     title: Ally slots
     text: |
-      {setting:guilds:levels.allies-at-first} at level 1, and one more every {setting:guilds:levels.levels-per-ally} levels. The Diplomat perk adds one slot per rank. A slot has to be free on both sides.
+      {setting:guilds:levels.allies-at-first} at level 1, and one more every {setting:guilds:levels.levels-per-ally} levels. The Diplomat, Embassy, Ambassadors and Grand Hall nodes of the skill tree add more. A slot has to be free on both sides.
   - question: How do I end an alliance?
     title: Ending it
     text: |

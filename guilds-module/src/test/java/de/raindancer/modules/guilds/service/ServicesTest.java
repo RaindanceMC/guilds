@@ -25,7 +25,6 @@ import de.raindancer.modules.guilds.model.Contract;
 import de.raindancer.modules.guilds.model.XpSource;
 import de.raindancer.modules.guilds.store.GuildBook;
 import de.raindancer.modules.guilds.store.ProgressBook;
-import de.raindancer.modules.guilds.model.Perk;
 import de.raindancer.modules.guilds.store.GuildsDatabase;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.Server;
@@ -926,22 +925,55 @@ class ServicesTest {
         void buying() {
             Guild elves = found(ALICE, "Elves", "ELF");
             join(elves, BOB);
-            assertThat(perks.raise(ALICE, Perk.RECRUITER)).as("level 1: neither the level nor a point").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
+            assertThat(perks.raise(ALICE, "recruiter")).as("level 1: neither the level nor a point").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
             reach(elves, 4);
-            assertThat(perks.raise(BOB, Perk.RECRUITER)).as("a recruit may not spend").isEqualTo(GuildOutcome.NOT_ALLOWED);
+            assertThat(perks.raise(BOB, "recruiter")).as("a recruit may not spend").isEqualTo(GuildOutcome.NOT_ALLOWED);
             int before = guilds.memberCap(guild(ALICE));
-            assertThat(perks.raise(ALICE, Perk.RECRUITER)).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(perks.raise(ALICE, "recruiter")).isEqualTo(GuildOutcome.SUCCESS);
             assertThat(guilds.memberCap(guild(ALICE))).isEqualTo(before + 2);
-            assertThat(perks.raise(ALICE, Perk.RECRUITER)).as("rank II needs level 8").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
-            assertThat(perks.raise(ALICE, Perk.DIPLOMAT)).as("needs level 7").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
+            assertThat(perks.raise(ALICE, "recruiter")).as("rank II needs level 8").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
+            assertThat(perks.raise(ALICE, "diplomat")).as("needs level 7").isEqualTo(GuildOutcome.LEVEL_TOO_LOW);
             reach(elves, 7);
             int allies = relations.allySlots(guild(ALICE));
-            assertThat(perks.raise(ALICE, Perk.DIPLOMAT)).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(perks.raise(ALICE, "diplomat")).isEqualTo(GuildOutcome.SUCCESS);
             assertThat(relations.allySlots(guild(ALICE))).isEqualTo(allies + 1);
             long beforeXp = guild(ALICE).xp();
-            perks.raise(ALICE, Perk.PROSPEROUS);
+            assertThat(perks.raise(ALICE, "prosperous")).as("needs the scholar next to it").isEqualTo(GuildOutcome.PERK_LOCKED);
+            perks.raise(ALICE, "scholar");
+            assertThat(perks.raise(ALICE, "prosperous")).isEqualTo(GuildOutcome.SUCCESS);
             xp.activity(ALICE, Activity.of(XpSource.BOSS, "wither"));
             assertThat(guild(ALICE).xp() - beforeXp).as("+5% guild experience").isEqualTo(262);
+        }
+
+        @Test
+        @DisplayName("the tree's experience nodes: by source, near a guildmate, more contracts paying more")
+        void treeExperience() {
+            Guild elves = found(ALICE, "Elves", "ELF");
+            perks.nearby((player, guild) -> near.getOrDefault(player, 0));
+            reach(elves, 10);
+            assertThat(xp.activity(ALICE, new Activity(XpSource.MINE, "diamond", 10))).isEqualTo(80);
+            assertThat(perks.raise(ALICE, "haste")).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(perks.raise(ALICE, "prospectors")).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(xp.activity(ALICE, new Activity(XpSource.MINE, "diamond", 10))).as("+10% from mining").isEqualTo(88);
+            assertThat(perks.raise(ALICE, "shoulder_to_shoulder")).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(xp.activity(ALICE, new Activity(XpSource.MINE, "diamond", 10))).as("nobody near: no together bonus")
+                    .isEqualTo(88);
+            near.put(ALICE, 1);
+            assertThat(xp.activity(ALICE, new Activity(XpSource.MINE, "diamond", 10)))
+                    .as("+10% together, +5% the tree's together, +10% mining").isEqualTo(100);
+            near.clear();
+
+            for (String node : List.of("recruiter", "quartermaster", "notice_board")) {
+                assertThat(perks.raise(ALICE, node)).as(node).isEqualTo(GuildOutcome.SUCCESS);
+            }
+            assertThat(xp.contracts(guild(ALICE))).as("this week's were dealt already").hasSize(3);
+            clock.addAndGet(Duration.ofDays(7).toMillis());
+            List<Contract> week = xp.contracts(guild(ALICE));
+            assertThat(week).as("one more from the next week").hasSize(4);
+            Contract first = week.getFirst();
+            xp.activity(ALICE, new Activity(first.source(), first.what().isEmpty() ? "zombie" : first.what(), first.goal() + 5));
+            assertThat(progress.totals(elves.id().value())).as("+10% from the quartermaster")
+                    .containsEntry(XpSource.CONTRACT, first.reward() * 110 / 100);
         }
 
         @Test
@@ -949,11 +981,11 @@ class ServicesTest {
         void respec() {
             Guild elves = found(ALICE, "Elves", "ELF");
             reach(elves, 5);
-            perks.raise(ALICE, Perk.SCHOLAR);
+            perks.raise(ALICE, "scholar");
             int unspent = perks.unspent(guild(ALICE));
             assertThat(perks.respec(ALICE)).isEqualTo(GuildOutcome.SUCCESS);
             assertThat(perks.unspent(guild(ALICE))).isEqualTo(unspent + 1);
-            perks.raise(ALICE, Perk.SCHOLAR);
+            perks.raise(ALICE, "scholar");
             assertThat(perks.respec(ALICE)).isEqualTo(GuildOutcome.ON_COOLDOWN);
             clock.addAndGet(Duration.ofDays(7).toMillis());
             assertThat(perks.respec(ALICE)).isEqualTo(GuildOutcome.SUCCESS);
@@ -966,12 +998,13 @@ class ServicesTest {
             join(elves, BOB);
             assertThat(perks.prestige(ALICE)).isEqualTo(GuildOutcome.NOT_TOP_LEVEL);
             reach(elves, xp.levels().topLevel());
-            perks.raise(ALICE, Perk.VAULT);
+            perks.raise(ALICE, "recruiter");
+            perks.raise(ALICE, "vault");
             int earned = perks.rule().earned(perks.standing(guild(ALICE)));
             assertThat(perks.prestige(BOB)).isEqualTo(GuildOutcome.NOT_ALLOWED);
             assertThat(perks.prestige(ALICE)).isEqualTo(GuildOutcome.SUCCESS);
             assertThat(guilds.level(guild(ALICE))).isEqualTo(1);
-            assertThat(perks.standing(guild(ALICE)).rank(Perk.VAULT)).isEqualTo(1);
+            assertThat(perks.standing(guild(ALICE)).rank("vault")).isEqualTo(1);
             assertThat(perks.rule().earned(perks.standing(guild(ALICE)))).isEqualTo(earned + 2);
             assertThat(perks.honours(guild(ALICE))).contains("★");
             assertThat(perks.guildXpPercent(guild(ALICE))).isEqualTo(5);
@@ -1009,7 +1042,7 @@ class ServicesTest {
         void persisted() {
             Guild elves = found(ALICE, "Elves", "ELF");
             reach(elves, 6);
-            perks.raise(ALICE, Perk.HASTE);
+            perks.raise(ALICE, "haste");
             xp.activity(ALICE, Activity.of(XpSource.BOSS, "wither"));
             clock.addAndGet(Duration.ofDays(7).toMillis());
             perks.settle();
@@ -1017,7 +1050,7 @@ class ServicesTest {
             ProgressBook again = new ProgressBook(database);
             again.load();
             var standing = again.standing(elves.id().value(), () -> 0);
-            assertThat(standing.rank(Perk.HASTE)).isEqualTo(1);
+            assertThat(standing.rank("haste")).isEqualTo(1);
             assertThat(standing.levelPoints()).isEqualTo(5);
             assertThat(standing.crowns()).isEqualTo(1);
             assertThat(again.crown().guild()).isEqualTo(elves.id().value());
