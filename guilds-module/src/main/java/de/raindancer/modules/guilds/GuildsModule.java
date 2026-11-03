@@ -36,9 +36,8 @@ import de.raindancer.modules.guilds.model.GuildOutcome;
 import de.raindancer.modules.guilds.model.Member;
 import de.raindancer.modules.guilds.model.Activity;
 import de.raindancer.modules.guilds.model.XpSource;
-import de.raindancer.modules.guilds.rules.ActivityRule;
 import de.raindancer.core.social.economy.Fees;
-import de.raindancer.core.world.blocks.PlacedBlocks;
+import de.raindancer.core.world.activity.Activities;
 import de.raindancer.modules.guilds.util.PermissionNodes;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
@@ -55,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.24.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.25.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, a skill tree of perks bought with the guild's levels, guild, officer and ally chat, and the guild's tag in "
@@ -64,13 +63,6 @@ public final class GuildsModule implements FlexModule {
 
     private GuildBook book;
     private ProgressBook progress;
-
-    /** Blocks whose "did a player put this here?" matters: ores and the melons and pumpkins the world grows. */
-    private static java.util.Set<org.bukkit.Material> placedMatters() {
-        java.util.Set<org.bukkit.Material> watched = java.util.EnumSet.copyOf(ActivityRule.ores());
-        watched.addAll(ActivityRule.GROWN_BLOCKS);
-        return watched;
-    }
 
     @Override
     public ModuleInfo info() {
@@ -175,8 +167,6 @@ public final class GuildsModule implements FlexModule {
         guilds.onFounded(xp::warm);
         long thousand = Math.max(1, Fees.amount("1000").minor());
         bank.onDeposit((player, amount) -> xp.activity(player, Activity.of(XpSource.DEPOSIT, amount.minor() / thousand)));
-        Object watched = PlacedBlocks.watch(context.plugin(), placedMatters());
-        context.closeWith(() -> PlacedBlocks.unwatch(watched));
         Travel travel = new Travel(context.plugin(), context.core().safety(), context.core().audit());
         context.closeWith(travel::clear);
         HomeService homes = new HomeService(book, notifier, server, travel, System::currentTimeMillis, now);
@@ -274,6 +264,8 @@ public final class GuildsModule implements FlexModule {
         }
         ProgressListener progress = new ProgressListener(services);
         context.listener(progress);
+        Object listening = Activities.listen(context.plugin(), progress::heard);
+        context.closeWith(() -> Activities.stop(listening));
         context.listener(new PresenceListener(services, List.<IGuildsListener>of(progress)));
 
         var flush = Scheduling.asyncTimer(context.plugin(), 2, 2, task -> {

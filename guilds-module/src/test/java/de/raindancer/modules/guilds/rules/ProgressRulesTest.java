@@ -5,7 +5,6 @@ import de.raindancer.modules.guilds.GuildsSettings;
 import de.raindancer.modules.guilds.model.Activity;
 import de.raindancer.modules.guilds.model.Contract;
 import de.raindancer.modules.guilds.model.XpSource;
-import org.bukkit.Material;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,11 +40,8 @@ class ProgressRulesTest {
         }
 
         @Test
-        @DisplayName("ores are worth their rarity, and both stone and deepslate ores are the same ore")
+        @DisplayName("ores are worth their rarity, as Core's Ores knows it")
         void ores() {
-            assertThat(ActivityRule.oreOf(Material.DEEPSLATE_DIAMOND_ORE)).contains("diamond");
-            assertThat(ActivityRule.oreOf(Material.DIAMOND_ORE)).contains("diamond");
-            assertThat(ActivityRule.oreOf(Material.STONE)).isEmpty();
             assertThat(rule.worth(Activity.of(XpSource.MINE, "diamond"), base, more)).isEqualTo(8);
             assertThat(rule.worth(Activity.of(XpSource.MINE, "coal"), base, more)).isEqualTo(1);
             assertThat(rule.worth(Activity.of(XpSource.MINE, "ancient-debris"), base, more)).isEqualTo(15);
