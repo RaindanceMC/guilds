@@ -71,7 +71,7 @@ public final class PerkRule implements IGuildsRule {
         return tree.refusal(standing.nodes(), node.get(), measured, unspent(standing)).map(why -> switch (why) {
             case MAXED -> GuildOutcome.PERK_MAXED;
             case BARRED -> GuildOutcome.PERK_BARRED;
-            case NEEDS -> GuildOutcome.PERK_LOCKED;
+            case NEEDS, UNFINISHED -> GuildOutcome.PERK_LOCKED;
             case LEVEL -> GuildOutcome.LEVEL_TOO_LOW;
             case NO_POINTS -> GuildOutcome.NO_PERK_POINTS;
         }).orElse(GuildOutcome.SUCCESS);

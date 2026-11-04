@@ -1,6 +1,7 @@
 package de.raindancer.modules.guilds.screen;
 
 import de.raindancer.core.ui.choose.OptionChooser;
+import de.raindancer.core.ui.menu.Arrow;
 import de.raindancer.core.ui.menu.Icons;
 import de.raindancer.core.ui.menu.Menu;
 import de.raindancer.core.ui.menu.MenuLayout;
@@ -68,12 +69,12 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
         GuildOutcome promote = services.guilds().ranks().mayActOn(guild, me, member, GuildPermission.PROMOTE);
         Optional<Rank> up = services.guilds().ranks().step(guild, member, true);
         Optional<Rank> down = services.guilds().ranks().step(guild, member, false);
-        band(MenuLayout.WHO, 1, promote.isSuccess() && up.isPresent(), Icons.of(Material.LIME_DYE, "<white>Promote",
+        band(MenuLayout.WHO, 1, promote.isSuccess() && up.isPresent(), Icons.arrow(Arrow.UP, "<white>Promote",
                         "<gray>" + GuildMenu.escaped(rank) + " → <white>" + up.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
                         "", "<gray>Click to promote."),
                 promote.isSuccess() ? "They are as high as promotion goes." : why(promote),
                 click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, true)));
-        band(MenuLayout.WHO, 3, promote.isSuccess() && down.isPresent(), Icons.of(Material.RED_DYE, "<white>Demote",
+        band(MenuLayout.WHO, 3, promote.isSuccess() && down.isPresent(), Icons.arrow(Arrow.DOWN, "<white>Demote",
                         "<gray>" + GuildMenu.escaped(rank) + " → <white>" + down.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
                         "", "<gray>Click to demote."),
                 promote.isSuccess() ? "They are on the lowest rank." : why(promote),

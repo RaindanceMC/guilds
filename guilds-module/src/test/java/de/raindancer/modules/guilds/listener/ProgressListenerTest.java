@@ -27,16 +27,23 @@ class ProgressListenerTest {
     }
 
     @Test
-    @DisplayName("each of Core's activities earns from the source of the same name, what and amount kept")
+    @DisplayName("each of Core's activities the guild knows earns from the source of the same name, what and amount "
+            + "kept; one it does not know earns nothing")
     void mapsCoreActivities() {
+        java.util.Set<String> known = java.util.Arrays.stream(XpSource.values()).map(Enum::name)
+                .collect(java.util.stream.Collectors.toSet());
         for (ActivityKind kind : ActivityKind.values()) {
             if (kind == ActivityKind.PLAY) {
                 continue;
             }
-            assertThat(ProgressListener.toGuild(new de.raindancer.core.world.activity.Activity(kind, "iron", 3)))
-                    .as(kind.name())
-                    .contains(new Activity(XpSource.valueOf(kind.name()), "iron", 3));
+            var guild = ProgressListener.toGuild(new de.raindancer.core.world.activity.Activity(kind, "iron", 3));
+            if (known.contains(kind.name())) {
+                assertThat(guild).as(kind.name()).contains(new Activity(XpSource.valueOf(kind.name()), "iron", 3));
+            } else {
+                assertThat(guild).as(kind.name()).isEmpty();
+            }
         }
+        assertThat(known).as("the old ones still earn").contains("MONSTER", "MINE", "FISH");
     }
 
     @Test

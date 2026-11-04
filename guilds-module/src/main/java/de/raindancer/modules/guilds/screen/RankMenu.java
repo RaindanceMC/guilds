@@ -1,5 +1,6 @@
 package de.raindancer.modules.guilds.screen;
 
+import de.raindancer.core.ui.menu.Arrow;
 import de.raindancer.core.ui.menu.Icons;
 import de.raindancer.core.ui.menu.Menu;
 import de.raindancer.core.ui.menu.MenuLayout;
@@ -90,9 +91,9 @@ public final class RankMenu extends Menu implements IGuildsScreen {
                             .map(minor -> services.guilds().limitRank(me, rankId, minor))
                             .orElse(GuildOutcome.INVALID_AMOUNT));
                 }));
-        toolbar(3, edit.isSuccess(), Icons.of(Material.LIME_DYE, "<white>Move up the ladder", "", "<gray>Click to swap with the rank above."),
+        toolbar(3, edit.isSuccess(), Icons.arrow(Arrow.UP, "<white>Move up the ladder", "", "<gray>Click to swap with the rank above."),
                 why(edit), click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().moveRank(me, rankId, true)));
-        toolbar(5, edit.isSuccess(), Icons.of(Material.RED_DYE, "<white>Move down the ladder", "", "<gray>Click to swap with the rank below."),
+        toolbar(5, edit.isSuccess(), Icons.arrow(Arrow.DOWN, "<white>Move down the ladder", "", "<gray>Click to swap with the rank below."),
                 why(edit), click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().moveRank(me, rankId, false)));
         if (edit.isSuccess()) {
             danger(Icons.of(Material.BARRIER, "<red>Delete this rank", "<gray>Only a rank nobody holds.", "", "<gray>You will be asked first."),
