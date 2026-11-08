@@ -5,6 +5,7 @@ import de.raindancer.core.ui.menu.Menu;
 import de.raindancer.core.ui.menu.MenuLayout;
 import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.util.PermissionNodes;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Material;
@@ -63,6 +64,12 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
                 click -> new InvitationsMenu(services, viewer, this).open());
     }
 
+    @Override
+    protected List<String> helpLines() {
+        return List.of("You are in no guild yet.",
+                "Found one of your own, look at the guilds there are",
+                "and ask to join one, or answer an invitation.");
+    }
     @Override
     public String describe() {
         return "the guild page for somebody in no guild";

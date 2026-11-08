@@ -126,19 +126,21 @@ public final class GuildMenu extends Menu implements IGuildsScreen {
                         "<gray>Everything that happened, newest first.", "", "<gray>Click to read it."),
                 "Your rank cannot read the log.", click -> new LogMenu(services, viewer, this, guild.id(), false).open());
 
-        band(MenuLayout.LAND, 1, Icons.of(Material.COMPARATOR, "<white>The guild's own choices",
+        band(MenuLayout.LAND, 2, Icons.of(Material.COMPARATOR, "<white>The guild's own choices",
                         "<gray>Name, tag, colour, emblem, message of", "<gray>the day, who may join, friendly fire.",
                         "", "<gray>Click to see them; those your rank", "<gray>may change can be changed there."),
                 click -> new GuildSettingsMenu(services, viewer, this).open());
-        band(MenuLayout.LAND, 3, Icons.of(Material.EXPERIENCE_BOTTLE, "<white>Level and contracts",
+        band(MenuLayout.LAND, 4, Icons.of(Material.EXPERIENCE_BOTTLE, "<white>Level and contracts",
                         "<gray>Level <white>" + level + "<gray>, what earns experience,", "<gray>where it came from, and this week's contracts.",
                         "", "<gray>Click to see it all."),
                 click -> new LevelMenu(services, viewer, this).open());
-        band(MenuLayout.LAND, 5, Icons.of(Material.NETHER_STAR, "<white>Perks and vault",
+        band(MenuLayout.LAND, 6, Icons.of(Material.NETHER_STAR, "<white>Perks and vault",
                         "<gray><white>" + services.perks().unspent(guild) + "<gray> point(s) to spend.",
                         "<gray>Perks, prestige, and the shared vault.", "", "<gray>Click to see them."),
                 click -> new PerksMenu(services, viewer, this).open());
-        band(MenuLayout.LAND, 7, Icons.of(Material.OAK_DOOR, "<white>Leave the guild",
+        // Leaving is the one thing on this page that cannot be undone from it, so it sits where every page keeps
+        // that — the danger slot, flanked by navigation, behind a question — rather than among the doors.
+        danger(Icons.of(Material.OAK_DOOR, "<red>Leave the guild",
                         guild.leader().equals(me) && guild.size() > 1
                                 ? "<gray>Hand the guild to somebody else first." : "<gray>You can be invited back.",
                         "", "<gray>You will be asked first."),
@@ -177,6 +179,17 @@ public final class GuildMenu extends Menu implements IGuildsScreen {
     /** A guild's or player's own words, safe inside lore markup. */
     static String escaped(String text) {
         return de.raindancer.core.ui.text.Text.literal(text);
+    }
+
+    @Override
+    protected List<String> helpLines() {
+        return List.of("Your guild, in three rows:",
+                "the people (members, invitations, ranks, allies),",
+                "what it holds (bank, home, log),",
+                "and the guild itself (choices, level, perks).",
+                "",
+                "A greyed button says why your rank cannot use it.",
+                "Leaving is at the bottom and asks first.");
     }
 
     @Override

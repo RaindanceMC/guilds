@@ -121,6 +121,18 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         }
     }
 
+    @Override
+    protected List<String> helpLines() {
+        return List.of("How the guild presents itself and who gets in.",
+                "Top row: its name, tag, colour and emblem.",
+                "Middle: the message of the day, who may join,",
+                "and friendly fire (the leader's alone).",
+                "Bottom: the colours of the tag and the name,",
+                "from the level the server set.",
+                "",
+                "Disbanding is at the bottom and asks first.");
+    }
+
     /**
      * The tag's or the name's colours: greyed until the guild reaches the level the server set, with the level said;
      * the service checks the level and the rank again, so the button is only the way in.

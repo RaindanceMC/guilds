@@ -162,4 +162,41 @@ class ScreenGrammarTest {
         }
         assertThat(deciding).as("these compare rank weights instead of asking RankRule").isEmpty();
     }
+
+    @Test
+    @DisplayName("the one thing a page cannot undo sits in the danger slot, not among the doors")
+    void whatAsksFirstIsInTheDangerSlot() {
+        // Leaving the guild used to be the fourth door of the bottom row, next to the perks. Everything else on
+        // that page opens something; this one ends something, and a page keeps that in one place — the slot
+        // flanked by Back and Close, behind a question — so a player knows where the irreversible thing is
+        // before they have read a single button.
+        List<String> amongTheDoors = new ArrayList<>();
+        for (Screen screen : drawnScreens()) {
+            if (screen.body().contains("danger(")) {
+                continue;   // the slot is taken; a second irreversible thing has to live in a band
+            }
+            int at = screen.body().indexOf("band(");
+            while (at >= 0) {
+                int next = screen.body().indexOf("band(", at + 1);
+                String call = screen.body().substring(at, next < 0 ? Math.min(screen.body().length(), at + 900)
+                        : Math.min(next, at + 900));
+                if (call.toLowerCase(java.util.Locale.ROOT).contains("asked first") && call.contains("ConfirmScreen")) {
+                    amongTheDoors.add(screen.name());
+                }
+                at = next;
+            }
+        }
+        assertThat(amongTheDoors)
+                .as("these put a button that asks first in a band; it belongs in danger()")
+                .isEmpty();
+    }
+
+    @Test
+    @DisplayName("the pages a command lands on explain themselves")
+    void theFirstPagesHaveHelp() {
+        for (String first : List.of("GuildMenu", "NoGuildMenu", "GuildSettingsMenu")) {
+            Screen screen = screens().stream().filter(found -> found.name().equals(first)).findFirst().orElseThrow();
+            assertThat(screen.body()).as(first + " has no help button").contains("helpLines()");
+        }
+    }
 }
