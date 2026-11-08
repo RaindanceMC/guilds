@@ -80,8 +80,8 @@ public final class RankMenu extends Menu implements IGuildsScreen {
                             : click -> services.messages().send(viewer, may.messageKey()));
         }
         GuildOutcome edit = services.guilds().ranks().mayEdit(guild, me, rank);
-        toolbar(1, edit.isSuccess(), Icons.of(Material.NAME_TAG, "<white>Rename", "", "<gray>Click, then type the new name."),
-                why(edit), click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.rank-name",
+        toolbar(1, edit.isSuccess(), Icons.of(Material.NAME_TAG, "<white>Rename", "", "<gray>Click to type the new name."),
+                why(edit), click -> IGuildsScreen.askInWindow(services, viewer, this, "The rank's name", rank.name(), 24,
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().renameRank(me, rankId, typed))));
         toolbar(2, edit.isSuccess(), Icons.of(Material.GOLD_NUGGET, "<white>Daily bank limit",
                         rank.isUnlimited() ? "<gray>None." : "<gray>" + services.bank().format(rank.dailyLimit()),

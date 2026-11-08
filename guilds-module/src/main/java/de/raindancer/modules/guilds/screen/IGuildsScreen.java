@@ -55,8 +55,29 @@ public interface IGuildsScreen {
     }
 
     /**
-     * Asks for a line of text in chat — the one thing a menu cannot ask — then reopens {@code back}.
-     * "cancel" leaves things as they are.
+     * Asks for a short text in a window — an anvil whose name field is the answer, checked while typing — and
+     * reopens {@code back} afterwards, answered or not. The player never leaves the menus for a name or a tag.
+     */
+    static void askInWindow(GuildsServices services, Player viewer, Menu back, String title, String start,
+                            int longest, Consumer<String> answer) {
+        de.raindancer.core.ui.prompt.AnvilInput.open(viewer, title, start == null ? "" : start,
+                de.raindancer.core.ui.prompt.Parsers.text(longest),
+                typed -> {
+                    answer.accept(typed);
+                    if (back != null) {
+                        back.open();
+                    }
+                },
+                () -> {
+                    if (back != null) {
+                        back.open();
+                    }
+                });
+    }
+
+    /**
+     * Asks for a line of text in chat — for what an anvil's name field cannot hold: a message of the day, a
+     * name and a tag in one line — then reopens {@code back}. "cancel" leaves things as they are.
      */
     static void ask(GuildsServices services, Player viewer, Menu back, String questionKey, Consumer<String> answer,
                     Object... values) {

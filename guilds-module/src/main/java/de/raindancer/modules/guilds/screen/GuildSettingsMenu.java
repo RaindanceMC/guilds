@@ -55,12 +55,12 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         String locked = "Your rank cannot change the guild.";
 
         band(MenuLayout.WHO, 1, edit, Icons.of(Material.NAME_TAG, "<white>Name",
-                        "<gray>" + GuildMenu.escaped(guild.name()), "", "<gray>Click, then type a new name."), locked,
-                click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.name",
+                        "<gray>" + GuildMenu.escaped(guild.name()), "", "<gray>Click to type a new name."), locked,
+                click -> IGuildsScreen.askInWindow(services, viewer, this, "The guild's name", guild.name(), 32,
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().rename(me, typed))));
         band(MenuLayout.WHO, 3, edit, Icons.of(Material.OAK_SIGN, "<white>Tag",
-                        "<gray>[" + guild.tag() + "]", "", "<gray>Click, then type a new tag."), locked,
-                click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.tag",
+                        "<gray>[" + guild.tag() + "]", "", "<gray>Click to type a new tag."), locked,
+                click -> IGuildsScreen.askInWindow(services, viewer, this, "The guild's tag", guild.tag(), 10,
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().retag(me, typed))));
         band(MenuLayout.WHO, 5, edit, Icons.of(guild.colour().bannerMaterial(), "<white>Colour",
                         "<gray>" + guild.colour().describe(), "", "<gray>Click to pick one."), locked,

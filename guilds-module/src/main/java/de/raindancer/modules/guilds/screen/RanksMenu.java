@@ -79,9 +79,9 @@ public final class RanksMenu extends PaginatedMenu<Rank> implements IGuildsScree
         super.render();
         boolean may = guild().map(guild -> guild.may(viewer.getUniqueId(), GuildPermission.MANAGE_RANKS)).orElse(false);
         toolbar(4, may, Icons.of(Material.LADDER, "<white>New rank",
-                        "<gray>Starts just above the lowest,", "<gray>with nothing allowed.", "", "<gray>Click, then type its name."),
+                        "<gray>Starts just above the lowest,", "<gray>with nothing allowed.", "", "<gray>Click to type its name."),
                 "Your rank cannot manage ranks.",
-                click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.rank-name",
+                click -> IGuildsScreen.askInWindow(services, viewer, this, "The new rank's name", "", 24,
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().createRank(viewer.getUniqueId(), typed))));
     }
 
