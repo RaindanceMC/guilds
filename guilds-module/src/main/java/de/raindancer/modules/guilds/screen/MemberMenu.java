@@ -107,13 +107,13 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                         own ? "<gray>Their own: <white>" + services.bank().formatLimit(allowance.limit())
                                 : "<gray>Their rank's: <white>" + services.bank().formatLimit(allowance.limit()),
                         "<gray>Their own replaces the rank's, higher or lower.",
-                        "", "<gray>Click, then type an amount.", "<gray>Type <white>none<gray> for no limit,",
+                        "", "<gray>Click to type an amount,", "<gray>or <white>none<gray> for no limit,",
                         "<white>rank<gray> for the rank's again."),
                 limits == GuildOutcome.NOT_ALLOWED ? "Your rank cannot manage ranks." : why(limits),
-                click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.member-limit", typed ->
+                click -> IGuildsScreen.askInWindow(services, viewer, this, "Their daily bank limit — an amount, or none", "", 16, typed ->
                         IGuildsScreen.say(services, viewer, () -> services.bank().parseLimit(typed, true)
                                 .map(minor -> services.guilds().limitMember(me, member, minor))
-                                .orElse(GuildOutcome.INVALID_AMOUNT)), "player", name));
+                                .orElse(GuildOutcome.INVALID_AMOUNT))));
 
         GuildOutcome kick = services.guilds().ranks().mayActOn(guild, me, member, GuildPermission.KICK);
         if (kick.isSuccess()) {

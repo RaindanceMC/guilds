@@ -70,14 +70,6 @@ guilds:
     guild: "<tag> <white><player></white><dark_gray>:</dark_gray> <gray><message>"
     officer: "<tag> <gold>[Officers]</gold> <white><player></white><dark_gray>:</dark_gray> <gray><message>"
     ally: "<tag> <green>[Allies]</green> <white><player></white><dark_gray>:</dark_gray> <gray><message>"
-  ask:
-    found: "<aqua>Type the guild's name and then its tag in chat, e.g. <white>The Elves ELF</white>. <gray>Or <white>cancel</white>."
-    name: "<aqua>Type the guild's new name in chat. <gray>Or <white>cancel</white>."
-    tag: "<aqua>Type the guild's new tag in chat. <gray>Or <white>cancel</white>."
-    motd: "<aqua>Type the message of the day in chat. <gray>Or <white>cancel</white>."
-    rank-name: "<aqua>Type the rank's name in chat. <gray>Or <white>cancel</white>."
-    limit: "<aqua>Type the daily limit in chat, or <white>none</white>. <gray>Or <white>cancel</white>."
-    member-limit: "<aqua>Type <white><player></white>'s own daily limit in chat, <white>none</white>, or <white>rank</white> for their rank's. <gray>Or <white>cancel</white>."
   perk:
     bought: "<gold><white><player></white> took <white><perk></white> <white><rank></white> in the guild skill tree."
     levels-kept: "<light_purple>Your guild's lore kept your levels through death."

@@ -85,8 +85,8 @@ public final class RankMenu extends Menu implements IGuildsScreen {
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().renameRank(me, rankId, typed))));
         toolbar(2, edit.isSuccess(), Icons.of(Material.GOLD_NUGGET, "<white>Daily bank limit",
                         rank.isUnlimited() ? "<gray>None." : "<gray>" + services.bank().format(rank.dailyLimit()),
-                        "", "<gray>Click, then type an amount.", "<gray>Type <white>none<gray> for no limit."),
-                why(edit), click -> IGuildsScreen.ask(services, viewer, this, "guilds.ask.limit", typed -> {
+                        "", "<gray>Click to type an amount,", "<gray>or <white>none<gray> for no limit."),
+                why(edit), click -> IGuildsScreen.askInWindow(services, viewer, this, "Daily bank limit — an amount, or none", "", 16, typed -> {
                     IGuildsScreen.say(services, viewer, () -> services.bank().parseLimit(typed, false)
                             .map(minor -> services.guilds().limitRank(me, rankId, minor))
                             .orElse(GuildOutcome.INVALID_AMOUNT));

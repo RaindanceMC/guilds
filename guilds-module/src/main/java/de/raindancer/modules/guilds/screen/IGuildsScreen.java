@@ -75,36 +75,4 @@ public interface IGuildsScreen {
                 });
     }
 
-    /**
-     * Asks for a line of text in chat — for what an anvil's name field cannot hold: a message of the day, a
-     * name and a tag in one line — then reopens {@code back}. "cancel" leaves things as they are.
-     */
-    static void ask(GuildsServices services, Player viewer, Menu back, String questionKey, Consumer<String> answer,
-                    Object... values) {
-        viewer.closeInventory();
-        boolean asking = services.core().prompts().ask(viewer.getUniqueId(), "guilds", TO_ANSWER,
-                typed -> {
-                    if (typed == null || typed.strip().equalsIgnoreCase("cancel")) {
-                        services.messages().send(viewer, "guilds.left-as-it-is");
-                    } else {
-                        answer.accept(typed.strip());
-                    }
-                    if (back != null) {
-                        back.open();
-                    }
-                },
-                () -> {
-                    if (back != null) {
-                        back.open();
-                    }
-                });
-        if (!asking) {
-            services.messages().send(viewer, "guilds.busy");
-            if (back != null) {
-                back.open();
-            }
-            return;
-        }
-        services.messages().send(viewer, questionKey, values);
-    }
 }
