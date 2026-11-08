@@ -46,14 +46,16 @@ public final class GuildSidebar {
         LevelRule levels = guilds.levels();
         int level = guilds.level(guild);
         NumberFormat numbers = NumberFormat.getIntegerInstance(Locale.ENGLISH);
+        // The economy's shape, so the board reads as one: a bullet and the heading, values indented under it.
         Component progress = levels.isTop(level)
-                ? Component.text(" Level " + level + " · top", NamedTextColor.GOLD)
-                : Component.text(" Level " + level + " · ", NamedTextColor.GRAY)
+                ? Component.text("   Level " + level + " · top", NamedTextColor.GOLD)
+                : Component.text("   Level " + level + " · ", NamedTextColor.GRAY)
                         .append(Component.text(numbers.format(guild.xp()) + "/" + numbers.format(levels.toReach(level + 1))
                                 + " XP", NamedTextColor.WHITE));
         return List.of(
-                GuildNotifier.tag(guild).append(Component.space()).append(GuildNotifier.title(guild)),
+                Component.text("▪ ", NamedTextColor.DARK_GRAY).append(GuildNotifier.tag(guild)).append(Component.space())
+                        .append(GuildNotifier.title(guild)),
                 progress,
-                Component.text(" Bank ", NamedTextColor.GRAY).append(Component.text(money.apply(guild.bank()), NamedTextColor.WHITE)));
+                Component.text("   Bank ", NamedTextColor.GRAY).append(Component.text(money.apply(guild.bank()), NamedTextColor.WHITE)));
     }
 }
