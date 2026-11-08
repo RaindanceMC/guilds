@@ -82,6 +82,8 @@ guilds:
     race-head: "<gold>This week's guild race:"
     race-line: "<gray><white>#<place></white> <guild> <dark_gray>— <xp> experience"
     race-empty: "<gray>Nobody has earned anything yet this week. Be first."
+  enchants:
+    not-here: "<gray>Guilds don't unlock enchantments with shards on this server."
   npc:
     placed: "<green>A <white><npc></white> stands here now. Members right click them. <gray>/guild admin npc remove takes them away."
     removed: "<green>The nearest attendant is gone."

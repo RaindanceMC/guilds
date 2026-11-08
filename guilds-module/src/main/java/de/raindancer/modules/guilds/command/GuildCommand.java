@@ -1,5 +1,6 @@
 package de.raindancer.modules.guilds.command;
 
+import de.raindancer.core.content.enchant.EnchantUnlocks;
 import de.raindancer.core.platform.command.PlayerTargets;
 import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.social.team.TeamId;
@@ -144,7 +145,9 @@ public final class GuildCommand implements IGuildsCommand {
                 }
             }
             case "shards", "enchants" -> {
-                if (live.guilds().guildOf(me).isEmpty()) {
+                if (!EnchantUnlocks.shardsOffered()) {
+                    live.messages().send(player, "guilds.enchants.not-here");
+                } else if (live.guilds().guildOf(me).isEmpty()) {
                     say(live, player, GuildOutcome.NO_GUILD);
                 } else if (rest.equalsIgnoreCase("add")) {
                     live.shards().payInAll(player, () -> { });

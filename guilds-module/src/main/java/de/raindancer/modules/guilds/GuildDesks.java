@@ -1,5 +1,7 @@
 package de.raindancer.modules.guilds;
 
+import de.raindancer.core.content.enchant.EnchantUnlocks;
+import java.util.function.BooleanSupplier;
 import de.raindancer.core.social.desk.DeskOffer;
 import de.raindancer.core.social.desk.ServiceDesk;
 import de.raindancer.core.social.desk.ServiceDesks;
@@ -41,9 +43,10 @@ public final class GuildDesks {
                         "<gray>Pay in or take out.", this::bank)),
                 new Offered(ServiceDesk.GUILD_VAULT, new Offer(Material.ENDER_CHEST, "<white>The guild vault",
                         "<gray>The chest every member shares.", this::vault)),
+                // only while shards can be earned here
                 new Offered(ServiceDesk.GUILD_ENCHANTS, new Offer(Material.ENCHANTED_BOOK,
                         "<white>The guild's enchantments", "<gray>Pay in shards, unlock books for everybody.",
-                        this::enchants)));
+                        this::enchants, EnchantUnlocks::shardsOffered)));
     }
 
     /** The desk staff mean by {@code bank}, {@code vault} or {@code enchants}. */
@@ -99,17 +102,23 @@ public final class GuildDesks {
         private final String title;
         private final String line;
         private final Opens opens;
+        private final BooleanSupplier shown;
 
         Offer(Material icon, String title, String line, Opens opens) {
+            this(icon, title, line, opens, () -> true);
+        }
+
+        Offer(Material icon, String title, String line, Opens opens, BooleanSupplier shown) {
             this.icon = icon;
             this.title = title;
             this.line = line;
             this.opens = opens;
+            this.shown = shown;
         }
 
         @Override
         public boolean available() {
-            return services.get() != null;
+            return services.get() != null && shown.getAsBoolean();
         }
 
         @Override
