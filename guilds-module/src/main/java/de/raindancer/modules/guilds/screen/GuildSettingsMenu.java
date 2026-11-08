@@ -84,13 +84,13 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
 
         band(MenuLayout.RULES, 2, edit, Icons.of(Material.WRITABLE_BOOK, "<white>Message of the day",
                         guild.motd().isBlank() ? "<gray>None." : "<gray>“" + GuildMenu.escaped(guild.motd()) + "”",
-                        "", "<gray>Click, then type it.", "<gray>Right click to clear it."), locked,
+                        "", "<gray>Click to type it.", "<gray>Right click to clear it."), locked,
                 click -> {
                     if (click.isRightClick()) {
                         IGuildsScreen.tell(services, viewer, this, () -> services.guilds().motd(me, ""));
                         return;
                     }
-                    IGuildsScreen.ask(services, viewer, this, "guilds.ask.motd",
+                    IGuildsScreen.askInWindow(services, viewer, this, "The message of the day", guild.motd(), 200,
                             typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().motd(me, typed)));
                 });
         band(MenuLayout.RULES, 4, edit, Icons.of(guild.joinMode().icon(), "<white>Who may join",

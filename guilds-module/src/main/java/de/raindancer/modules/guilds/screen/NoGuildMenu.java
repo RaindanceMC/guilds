@@ -43,17 +43,16 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
         band(MenuLayout.WHO, 2, mayFound, Icons.of(Material.BEACON, "<white>Found a guild",
                         services.guilds().foundingPrice().isPositive() ? "<gray>Costs <white>" + price + "<gray>." : "<gray>Free.",
                         "<dark_gray>" + services.guilds().names().describe() + ".",
-                        "", "<gray>Click, then type the name and the tag", "<gray>in chat: <white>The Elves ELF"),
+                        "", "<gray>Click to type its name, then its tag:", "<gray><white>The Elves<gray>, then <white>ELF"),
                 "Founding guilds is not for you on this server.",
-                click -> IGuildsScreen.ask(services, viewer, null, "guilds.ask.found", typed -> {
-                    int space = typed.lastIndexOf(' ');
-                    if (space <= 0) {
-                        services.messages().send(viewer, "guilds.usage.found");
-                        return;
-                    }
-                    IGuildsScreen.say(services, viewer, () -> services.guilds()
-                            .found(viewer.getUniqueId(), typed.substring(0, space), typed.substring(space + 1)));
-                }));
+                // Two questions in the game's dialog, one after the other, each checked by the same rule the command
+                // uses; no page to come back to — a founded guild's page is the answer, a cancel leaves no guild.
+                click -> IGuildsScreen.askInWindow(services, viewer, null, "The guild's name", "", 32,
+                        name -> IGuildsScreen.askInWindow(services, viewer, null, "Its tag, e.g. ELF", "", 10,
+                                tag -> {
+                                    IGuildsScreen.say(services, viewer, () -> services.guilds().found(viewer.getUniqueId(), name, tag));
+                                    GuildMenu.forViewer(services, viewer).open();
+                                })));
         band(MenuLayout.WHO, 4, Icons.of(Material.COMPASS, "<white>Every guild",
                         "<gray>" + services.book().count() + " on this server.",
                         "", "<gray>Click to look through them and join", "<gray>or apply to one."),
