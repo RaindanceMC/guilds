@@ -166,6 +166,7 @@ guilds:
     no-application: "<red>There is no such application waiting."
     leader-must-hand-over: "<red>A leader does not just walk out. Hand the guild over first: <white>/guild leader</white> and a name."
     cannot-afford: "<red>You cannot afford that."
+    not-played-enough: "<red>You need to play here a little longer before founding a guild. <gray>/guild shows how long."
     bank-empty: "<red>The bank does not hold that much."
     over-daily-limit: "<red>That is more than you may take out today. <gray>/guild bank available"
     economy-down: "<red>Money cannot move right now; nothing changed. Try again in a moment."

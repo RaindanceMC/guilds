@@ -25,6 +25,11 @@ public record GuildsSettings(
         @Describe("Paid by the founder. 0 founds for free. Needs an economy when it is not 0.")
         @Key("founding-price") String foundingPrice,
 
+        @In("guilds") @Title("Hours played before founding") @Range(min = 0, max = 10000)
+        @Describe("Active hours (AFK time does not count) a player needs before founding a guild. 0 asks for none. "
+                + "Whoever holds rainsguilds.found.free needs neither these hours nor the price.")
+        @Key("founding-hours") int foundingHours,
+
         @In("guilds") @Title("Shortest name") @Range(min = 1, max = 32)
         @Key("name.shortest") int shortestName,
 
@@ -152,7 +157,7 @@ public record GuildsSettings(
         @Key("enchants.unlock-shards") int unlockShards) {
 
     public static final GuildsSettings DEFAULTS = new GuildsSettings(
-            "0", 3, 24, 2, 5, List.of(), 8, 48, 7, 30, true, true,
+            "0", 0, 3, 24, 2, 5, List.of(), 8, 48, 7, 30, true, true,
             1000, 1.6, 25, 8, 2, 50, 1, 5, 3, 0.35, 2, 250, 25, 1,
             true, "", ShareRule.Mode.CONTRIBUTION, "10000", "1000",
             5, 60, 2, true, 100);

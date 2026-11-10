@@ -24,7 +24,7 @@ sections:
     title: Founding
     text: |
       Type {cmd:/guild create <name> <tag>}, for example {cmd:/guild create The Elves ELF}. Or click the button on the guild page and type the name and the tag in chat. You become its leader.
-      {if:guilds:founding-price}Founding costs {setting:guilds:founding-price|money}, paid by you. If something goes wrong after paying, you get it back.{else}Founding is free.{/if} You cannot found one while you are in another guild.
+      {if:guilds:founding-price}Founding costs {setting:guilds:founding-price|money}, paid by you. If something goes wrong after paying, you get it back.{else}Founding is free.{/if}{if:guilds:founding-hours} You need {setting:guilds:founding-hours} hours of active play first; the found button in {run:/guild} shows how long is left.{/if} Creators found for free and need no hours. You cannot found one while you are in another guild.
   - question: What may a guild be called?
     title: Names and tags
     text: |

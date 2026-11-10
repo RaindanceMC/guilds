@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.32.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.33.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, a skill tree of perks bought with the guild's levels, guild, officer and ally chat, and the guild's tag in "
@@ -165,6 +165,10 @@ public final class GuildsModule implements FlexModule {
         xp.perks(perks);
         perks.nearby(positions::guildmatesNear);
         guilds.onFounded(xp::warm);
+        de.raindancer.core.social.presence.Playtime playtime = context.core().playtime();
+        if (playtime != null) {
+            guilds.playtime(playtime::activeMinutes);
+        }
         long thousand = Math.max(1, Fees.amount("1000").minor());
         bank.onDeposit((player, amount) -> xp.activity(player, Activity.of(XpSource.DEPOSIT, amount.minor() / thousand)));
         Travel travel = new Travel(context.plugin(), context.core().safety(), context.core().audit());

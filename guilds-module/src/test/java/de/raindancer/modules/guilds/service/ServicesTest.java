@@ -94,7 +94,7 @@ class ServicesTest {
             return player;
         });
         GuildNotifier notify = new GuildNotifier(server, new Messages(folder.resolve("messages.yml")));
-        settings = new GuildsSettings("0", 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
+        settings = new GuildsSettings("0", 0, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                 1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
                 true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, 100);
         guilds = new GuildService(book, notify, Log.of("guilds-test"), clock::get,
@@ -162,8 +162,43 @@ class ServicesTest {
             assertThat(economy.balance(ALICE).minor()).isEqualTo(7);
         }
 
+        @Test
+        @DisplayName("somebody founding for free (a creator) pays nothing, whatever the price")
+        void free() {
+            guilds.settings(withPrice("500"));
+            assertThat(guilds.found(ALICE, "Elves", "ELF", true)).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(economy.balance(ALICE).minor()).isZero();
+            assertThat(guilds.found(BOB, "Dwarves", "DW", false)).isEqualTo(GuildOutcome.CANNOT_AFFORD);
+        }
+
+        @Test
+        @DisplayName("founding waits for the hours played the settings ask for; a creator does not wait")
+        void playtime() {
+            java.util.concurrent.atomic.AtomicLong played = new java.util.concurrent.atomic.AtomicLong(60);
+            guilds.playtime(who -> played.get());
+            guilds.settings(withPrice("0", 2));
+            assertThat(guilds.minutesStillNeeded(ALICE)).isEqualTo(60);
+            assertThat(guilds.found(ALICE, "Elves", "ELF")).isEqualTo(GuildOutcome.NOT_PLAYED_ENOUGH);
+            assertThat(book.count()).isZero();
+            assertThat(guilds.found(BOB, "Dwarves", "DW", true)).isEqualTo(GuildOutcome.SUCCESS);
+            played.set(120);
+            assertThat(guilds.minutesStillNeeded(ALICE)).isZero();
+            assertThat(guilds.found(ALICE, "Elves", "ELF")).isEqualTo(GuildOutcome.SUCCESS);
+        }
+
+        @Test
+        @DisplayName("without Core's playtime nobody is held back by hours")
+        void playtimeUnknown() {
+            guilds.settings(withPrice("0", 2));
+            assertThat(guilds.found(ALICE, "Elves", "ELF")).isEqualTo(GuildOutcome.SUCCESS);
+        }
+
         private GuildsSettings withPrice(String price) {
-            return new GuildsSettings(price, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
+            return withPrice(price, 0);
+        }
+
+        private GuildsSettings withPrice(String price, int hours) {
+            return new GuildsSettings(price, hours, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                     1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
                     true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, 100);
         }
@@ -740,7 +775,7 @@ class ServicesTest {
         @DisplayName("switched off by the server, nobody gets the lines")
         void off() {
             found(ALICE, "Elves", "ELF");
-            GuildsSettings off = new GuildsSettings("0", 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
+            GuildsSettings off = new GuildsSettings("0", 0, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                     1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
                     true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, false, 100);
             assertThat(new GuildSidebar(book, guilds, bank::format, () -> off).lines(ALICE)).isEmpty();

@@ -40,8 +40,12 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
         }
         String price = services.bank().format(services.guilds().foundingPrice().minor());
         boolean mayFound = viewer.hasPermission(PermissionNodes.FOUND);
+        boolean free = viewer.hasPermission(PermissionNodes.FOUND_FREE);
+        long waiting = free ? 0 : services.guilds().minutesStillNeeded(viewer.getUniqueId());
+        String cost = free ? "<light_purple>Free for you, as a creator."
+                : services.guilds().foundingPrice().isPositive() ? "<gray>Costs <white>" + price + "<gray>." : "<gray>Free.";
         band(MenuLayout.WHO, 2, mayFound, Icons.of(Material.BEACON, "<white>Found a guild",
-                        services.guilds().foundingPrice().isPositive() ? "<gray>Costs <white>" + price + "<gray>." : "<gray>Free.",
+                        waiting > 0 ? cost + " <red>Play <white>" + hoursAndMinutes(waiting) + "<red> more first." : cost,
                         "<dark_gray>" + services.guilds().names().describe() + ".",
                         "", "<gray>Click to type its name, then its tag:", "<gray><white>The Elves<gray>, then <white>ELF"),
                 "Founding guilds is not for you on this server.",
@@ -50,7 +54,7 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
                 click -> IGuildsScreen.askInWindow(services, viewer, null, "The guild's name", "", 32,
                         name -> IGuildsScreen.askInWindow(services, viewer, null, "Its tag, e.g. ELF", "", 10,
                                 tag -> {
-                                    IGuildsScreen.say(services, viewer, () -> services.guilds().found(viewer.getUniqueId(), name, tag));
+                                    IGuildsScreen.say(services, viewer, () -> services.guilds().found(viewer.getUniqueId(), name, tag, free));
                                     GuildMenu.forViewer(services, viewer).open();
                                 })));
         band(MenuLayout.WHO, 4, Icons.of(Material.COMPASS, "<white>Every guild",
@@ -72,5 +76,9 @@ public final class NoGuildMenu extends Menu implements IGuildsScreen {
     @Override
     public String describe() {
         return "the guild page for somebody in no guild";
+    }
+
+    private static String hoursAndMinutes(long minutes) {
+        return minutes >= 60 ? (minutes / 60) + " h" + (minutes % 60 == 0 ? "" : " " + (minutes % 60) + " min") : minutes + " min";
     }
 }

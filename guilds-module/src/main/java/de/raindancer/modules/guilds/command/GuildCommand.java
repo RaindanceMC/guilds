@@ -132,7 +132,8 @@ public final class GuildCommand implements IGuildsCommand {
                     live.messages().send(player, "guilds.usage.found");
                 } else {
                     String name = String.join(" ", Arrays.copyOfRange(args, 1, args.length - 1));
-                    say(live, player, live.guilds().found(me, name, args[args.length - 1]));
+                    say(live, player, live.guilds().found(me, name, args[args.length - 1],
+                            player.hasPermission(PermissionNodes.FOUND_FREE)));
                 }
             }
             case "info" -> info(live, player, rest);

@@ -37,6 +37,8 @@ public enum GuildOutcome {
     NO_APPLICATION,
     LEADER_MUST_HAND_OVER,
     CANNOT_AFFORD,
+    /** Founding asks for more hours played. */
+    NOT_PLAYED_ENOUGH,
     BANK_EMPTY,
     OVER_DAILY_LIMIT,
     ECONOMY_DOWN,

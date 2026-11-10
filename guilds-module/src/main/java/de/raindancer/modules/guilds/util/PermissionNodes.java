@@ -15,6 +15,9 @@ public final class PermissionNodes {
     /** Founding one. */
     public static final String FOUND = "rainsguilds.found";
 
+    /** Founding without the price and the hours played. Given to the creator group. */
+    public static final String FOUND_FREE = "rainsguilds.found.free";
+
     /** Going to the guild home without waiting between trips. */
     public static final String HOME_NO_WAIT = "rainsguilds.home.nowait";
 
@@ -28,6 +31,7 @@ public final class PermissionNodes {
         return List.of(
                 new Permission(USE, "Join guilds and use /guild", PermissionDefault.TRUE),
                 new Permission(FOUND, "Found a guild", PermissionDefault.TRUE),
+                new Permission(FOUND_FREE, "Found a guild for free, without the hours played", PermissionDefault.FALSE),
                 new Permission(HOME_NO_WAIT, "Go to the guild home without waiting between trips", PermissionDefault.FALSE),
                 new Permission(ADMIN, "Look after any guild: disband, rename, set experience or the leader", PermissionDefault.OP));
     }

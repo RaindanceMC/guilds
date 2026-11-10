@@ -164,7 +164,25 @@ public final class GuildService implements IGuildsService {
         return Fees.quote(SOURCE_FOUNDING, Fees.amount(settings.get().foundingPrice()));
     }
 
+    private volatile java.util.function.ToLongFunction<UUID> activeMinutes = who -> Long.MAX_VALUE;
+
+    /** Where a player's active minutes come from (Core's playtime); without it nobody waits for hours. */
+    public void playtime(java.util.function.ToLongFunction<UUID> source) {
+        this.activeMinutes = source == null ? who -> Long.MAX_VALUE : source;
+    }
+
+    /** Active minutes the player still has to play before founding, 0 when they may. */
+    public long minutesStillNeeded(UUID player) {
+        long wanted = settings.get().foundingHours() * 60L;
+        return wanted <= 0 ? 0 : Math.max(0, wanted - activeMinutes.applyAsLong(player));
+    }
+
     public GuildOutcome found(UUID founder, String typedName, String typedTag) {
+        return found(founder, typedName, typedTag, false);
+    }
+
+    /** @param free founding without the price and the hours played — {@code rainsguilds.found.free}, for creators */
+    public GuildOutcome found(UUID founder, String typedName, String typedTag, boolean free) {
         String name = GuildNameRule.tidy(typedName);
         String tag = typedTag == null ? "" : typedTag.strip();
         if (book.guildOf(founder).isPresent()) {
@@ -180,8 +198,11 @@ public final class GuildService implements IGuildsService {
         if (book.tagTaken(tag, null)) {
             return GuildOutcome.TAG_TAKEN;
         }
+        if (!free && minutesStillNeeded(founder) > 0) {
+            return GuildOutcome.NOT_PLAYED_ENOUGH;
+        }
         GuildsSettings now = settings.get();
-        Money price = Fees.amount(now.foundingPrice());
+        Money price = free ? Money.ZERO : Fees.amount(now.foundingPrice());
         EconomyResult paid = Fees.charge(founder, price, "Founding the guild " + name, SOURCE_FOUNDING);
         if (!paid.succeeded()) {
             return paid.outcome() == EconomyResult.Outcome.NOT_ENOUGH ? GuildOutcome.CANNOT_AFFORD : GuildOutcome.ECONOMY_DOWN;
