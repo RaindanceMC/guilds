@@ -715,6 +715,19 @@ class ServicesTest {
         }
 
         @Test
+        @DisplayName("a guild led by a Prime member paints its tag and name from the start; when Prime ends, the lock is back")
+        void primeLeader() {
+            java.util.Set<UUID> prime = new java.util.HashSet<>(java.util.Set.of(ALICE));
+            guilds.primeLeaders(prime::contains);
+            Guild elves = found(ALICE, "Elves", "ELF");
+            assertThat(guilds.mayStyle(elves)).isTrue();
+            assertThat(guilds.style(ALICE, true, gold)).isEqualTo(GuildOutcome.SUCCESS);
+            prime.clear();
+            assertThat(guilds.mayStyle(guild(ALICE))).isFalse();
+            assertThat(guilds.style(ALICE, false, gold)).isEqualTo(GuildOutcome.STYLE_LOCKED);
+        }
+
+        @Test
         @DisplayName("only who may edit the guild's info may paint it; reset takes it off")
         void permissionAndReset() {
             Guild elves = found(ALICE, "Elves", "ELF");

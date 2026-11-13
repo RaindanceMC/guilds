@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.33.0")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.34.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, a skill tree of perks bought with the guild's levels, guild, officer and ally chat, and the guild's tag in "
@@ -149,6 +149,9 @@ public final class GuildsModule implements FlexModule {
         context.closeWith(notifier.network(context.core().bus(), context.core()::networkPlayers));
         GuildService guilds = new GuildService(book, notifier, context.log(), System::currentTimeMillis,
                 player -> lastSeen(context, book, player), now);
+        // Prime: a guild led by a member paints its tag and name before reaching the level.
+        guilds.primeLeaders(who -> context.core().prime() != null
+                && context.core().prime().isPrime(who, java.time.Instant.now()));
         BankService bank = new BankService(book, notifier, context.log(), System::currentTimeMillis, BankService.current(), now);
         RelationService relations = new RelationService(book, notifier, System::currentTimeMillis, now);
         PositionService positions = new PositionService(progressSettings.current());

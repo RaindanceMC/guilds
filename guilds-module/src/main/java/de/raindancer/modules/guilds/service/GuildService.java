@@ -903,7 +903,7 @@ public final class GuildService implements IGuildsService {
         if (own.isEmpty()) {
             return GuildOutcome.NO_GUILD;
         }
-        if (!wanted.isEmpty() && level(own.get()) < settings.get().styleFromLevel()) {
+        if (!wanted.isEmpty() && !mayStyle(own.get())) {
             return GuildOutcome.STYLE_LOCKED;
         }
         GuildOutcome changed = edit(actor, GuildPermission.EDIT_INFO,
@@ -974,6 +974,18 @@ public final class GuildService implements IGuildsService {
     /** Every guild's tag, for completing {@code @TAG}. */
     public java.util.List<String> tags() {
         return book.all().stream().map(Guild::tag).sorted(String.CASE_INSENSITIVE_ORDER).toList();
+    }
+
+    private volatile java.util.function.Predicate<UUID> primeLeader = who -> false;
+
+    /** Who is Prime (Core's PrimeMembers): a guild they lead paints its tag and name at any level. */
+    public void primeLeaders(java.util.function.Predicate<UUID> prime) {
+        this.primeLeader = prime == null ? who -> false : prime;
+    }
+
+    /** Whether the guild may paint its tag and name: from the level the server set, or led by a Prime member. */
+    public boolean mayStyle(Guild guild) {
+        return level(guild) >= settings.get().styleFromLevel() || primeLeader.test(guild.leader());
     }
 
     /** From which level a guild may paint its tag and name. */

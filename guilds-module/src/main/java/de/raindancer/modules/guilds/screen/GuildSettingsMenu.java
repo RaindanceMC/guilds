@@ -140,7 +140,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
     private void paint(Guild guild, boolean edit, boolean tag) {
         UUID me = viewer.getUniqueId();
         int from = services.guilds().styleFromLevel();
-        boolean reached = services.guilds().level(guild) >= from;
+        boolean reached = services.guilds().mayStyle(guild);
         String what = tag ? "tag" : "name";
         de.raindancer.core.ui.text.NameStyle painted = tag ? guild.tagStyle() : guild.nameStyle();
         net.kyori.adventure.text.Component preview = tag ? GuildNotifier.tag(guild) : GuildNotifier.title(guild);
