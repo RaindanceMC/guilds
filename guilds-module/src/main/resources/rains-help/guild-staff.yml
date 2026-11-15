@@ -1,8 +1,8 @@
 id: guild-staff
 title: Guild administration
-summary: Staff tools for guilds — disband, rename, set experience or leader, give experience, boosts and attendants.
+summary: "Staff tools for guilds: disband, rename, set experience or leader, give experience, boosts and attendants."
 intro: |
-  Guilds look after themselves until they do not. Then there is this.
+  Staff commands for disbanding and renaming guilds, setting experience or leader, boosts and attendants.
 icon: COMMAND_BLOCK
 category: Staff
 order: 31
@@ -23,11 +23,11 @@ sections:
   - question: How do I place attendants?
     title: Attendants
     text: |
-      {cmd:/guild admin npc bank}, {cmd:/guild admin npc vault} or {cmd:/guild admin npc enchants} put a banker, vault keeper or guild enchanter where you stand — anybody's guild can talk to them. {cmd:/guild admin npc remove} removes the nearest one within four blocks. Skins are set under the guild attendants settings.
+      {cmd:/guild admin npc bank}, {cmd:/guild admin npc vault} or {cmd:/guild admin npc enchants} put a banker, vault keeper or guild enchanter where you stand. Any guild can talk to them. {cmd:/guild admin npc remove} removes the nearest one within four blocks. Skins are set under the guild attendants settings.
   - question: Which permissions matter?
     title: Permissions
     text: |
-      <white>rainsguilds.use</white> — join guilds and use /guild (everybody). <white>rainsguilds.found</white> — found a guild (everybody). <white>rainsguilds.home.nowait</white> — no wait between guild home trips. <white>rainsguilds.admin</white> — all of /guild admin.
+      <white>rainsguilds.use</white>: join guilds and use /guild (everybody). <white>rainsguilds.found</white>: found a guild (everybody). <white>rainsguilds.home.nowait</white>: no wait between guild home trips. <white>rainsguilds.admin</white>: all of /guild admin.
   - question: What can I tune?
     title: Settings
     permission: rainscore.settings

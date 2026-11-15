@@ -2,7 +2,7 @@ id: guild-chat
 title: Guild chat
 summary: Talk to your guild, its officers, or the guild and its allies without anybody else listening.
 intro: |
-  Three private channels. I promise I do not read them. Much.
+  Three private channels: guild, officers and allies.
 icon: BELL
 category: Guilds & teams
 order: 7
@@ -18,7 +18,7 @@ sections:
   - question: How do I talk to the officers only?
     title: Officer chat
     text: |
-      {cmd:/guild oc <message>}. You need the <i>officer chat</i> permission, and so do the readers — everyone else in the guild never sees it.
+      {cmd:/guild oc <message>}. You need the <i>officer chat</i> permission, and so do the readers. Everyone else in the guild never sees it.
   - question: How do I talk to my allies?
     title: Ally chat
     text: |
@@ -26,4 +26,4 @@ sections:
   - question: Why does it print usage at me?
     title: Empty messages
     text: |
-      Because there is nothing to send. Type a message after it. {cmd:/guild c hello} is more than enough.
+      There is nothing to send. Type a message after the command, for example {cmd:/guild c hello}.

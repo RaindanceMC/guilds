@@ -1,8 +1,8 @@
 id: guild-bank
 title: The guild bank
-summary: Pay in, take out within daily limits, pay members, read the statement — and what happens to it when a guild ends.
+summary: Pay in, take out within daily limits, pay members, read the statement, and what happens to it when a guild ends.
 intro: |
-  A shared purse needs rules, or it needs a funeral. These are the rules.
+  The bank holds money the whole guild shares. Pay in, take out within your limit, and pay members.
 icon: GOLD_INGOT
 category: Guilds & teams
 order: 3
@@ -15,7 +15,7 @@ sections:
   - question: How do I use the guild bank?
     title: Opening the bank
     text: |
-      {run:/guild bank} opens the bank page, or talk to the guild banker if your guild has placed one (see {topic:guild-enchants}). You can pay in, take out and read the statement — every payment in and out. {cmd:/guild bank available} tells you what you may take today.
+      {run:/guild bank} opens the bank page, or talk to the guild banker if your guild has placed one (see {topic:guild-enchants}). You can pay in, take out and read the statement (every payment in and out). {cmd:/guild bank available} tells you what you may take today.
   - question: How do I pay money in?
     title: Paying in
     text: |
@@ -29,11 +29,11 @@ sections:
   - question: How do I change the limits?
     title: Setting limits
     text: |
-      Ranks: {cmd:/guild bank limit rank <rank> <amount|none>} or the rank's page. A single player: {cmd:/guild bank limit player <player> <amount|none|rank>} or their member page — their own limit replaces the rank's, higher or lower; <b>rank</b> hands them back to the rank's. You need the <i>manage ranks</i> permission for ranks; you cannot set limits on people at or above your rank.
+      Ranks: {cmd:/guild bank limit rank <rank> <amount|none>} or the rank's page. A single player: {cmd:/guild bank limit player <player> <amount|none|rank>} or their member page. Their own limit replaces the rank's, higher or lower. <b>rank</b> hands them back to the rank's limit. You need the <i>manage ranks</i> permission for ranks; you cannot set limits on people at or above your rank.
   - question: How do I pay somebody from the bank?
     title: Paying out
     text: |
-      {cmd:/guild pay <player> <amount>} pays anybody — also people outside the guild — from the bank, any sum it holds, with no daily limit. It needs the <i>pay from the bank</i> permission, which only the leader has until they hand it out. Everyone in the guild is told what was paid.
+      {cmd:/guild pay <player> <amount>} pays anybody, also people outside the guild, from the bank, any sum it holds, with no daily limit. It needs the <i>pay from the bank</i> permission, which only the leader has until they hand it out. Everyone in the guild is told what was paid.
   - question: Who can see what happened?
     title: Statement and log
     text: |

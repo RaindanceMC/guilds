@@ -2,7 +2,7 @@ id: guild-enchants
 title: Guild enchantments and attendants
 summary: Unlock Rain's enchantments for the whole guild with shards, and place a banker, vault keeper or enchanter.
 intro: |
-  Some enchantments are not sold to individuals. They are sold to guilds that have collected the pieces.
+  Some enchantments are only unlocked by guilds, with shards the members pay in together.
 icon: ENCHANTED_BOOK
 category: Guilds & teams
 order: 9
@@ -14,7 +14,7 @@ sections:
   - question: How do guild enchantments work?
     title: Unlocking
     text: |
-      Rain's special enchantments cannot be bought by just anybody. Members <b>pay shards</b> of an enchantment in together; once the guild has paid in {setting:guilds:enchants.unlock-shards|number} shards of one, it is unlocked, and every member can buy its books at the shop (with shards and a little money). Shards drop in the shard world.
+      Rain's special enchantments are not sold to individuals. Members <b>pay shards</b> of an enchantment in together; once the guild has paid in {setting:guilds:enchants.unlock-shards|number} shards of one, it is unlocked, and every member can buy its books at the shop (with shards and a little money). Shards drop in the shard world.
   - question: How do I pay shards in?
     title: Paying shards
     text: |

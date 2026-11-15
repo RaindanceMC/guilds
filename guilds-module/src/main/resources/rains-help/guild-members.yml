@@ -2,7 +2,7 @@ id: guild-members
 title: Joining, ranks and leaving
 summary: Invitations, applications, the rank ladder and its permissions, promotions, kicking, handing over the guild.
 intro: |
-  Every guild is a ladder. Everyone starts on the bottom rung and the interesting question is who holds the top.
+  Everyone starts on the lowest rank. Ranks decide what a member may do.
 icon: LADDER
 category: Guilds & teams
 order: 2
@@ -18,11 +18,11 @@ sections:
   - question: How do I invite somebody?
     title: Inviting
     text: |
-      {cmd:/guild invite <player>} — you need a rank with the <i>invite</i> permission. The player is asked in chat and finds it under invitations on the guild page; it runs out after {setting:guilds:invitation-hours|hours}. They answer with {cmd:/guild accept [guild]} or {cmd:/guild decline [guild]} (name the guild if they hold several invitations).
+      {cmd:/guild invite <player>}. You need a rank with the <i>invite</i> permission. The player is asked in chat and finds it under invitations on the guild page; it runs out after {setting:guilds:invitation-hours|hours}. They answer with {cmd:/guild accept [guild]} or {cmd:/guild decline [guild]} (name the guild if they hold several invitations).
   - question: What about applications?
     title: Applications
     text: |
-      In a guild that takes applications, officers with the <i>invite</i> permission are told when somebody applies, with buttons to accept or decline. They find them on the guild page under <b>Invite and applications</b> (click to let them in, right-click to decline). An application stays for {setting:guilds:application-days|days}. Applying again while one is waiting is "pestering".
+      In a guild that takes applications, officers with the <i>invite</i> permission are told when somebody applies, with buttons to accept or decline. They find them on the guild page under <b>Invite and applications</b> (click to let them in, right-click to decline). An application stays for {setting:guilds:application-days|days}. You cannot apply again while one is waiting.
   - question: How many members can a guild have?
     title: Size
     text: |
@@ -30,7 +30,7 @@ sections:
   - question: How do I leave?
     title: Leaving
     text: |
-      {cmd:/guild leave}. A leader cannot just walk out of a guild with other people in it: hand it over first with {cmd:/guild leader <player>}. If you are the last member, leaving disbands it.
+      {cmd:/guild leave}. A leader cannot leave a guild that has other members. Hand it over first with {cmd:/guild leader <player>}. If you are the last member, leaving disbands it.
   - question: How does the rank ladder work?
     title: Ranks
     text: |
@@ -39,7 +39,7 @@ sections:
   - question: How do I promote or demote someone?
     title: Promoting
     text: |
-      {cmd:/guild promote <player>} moves them one step up the ladder, {cmd:/guild demote <player>} one down — you need the <i>promote and demote</i> permission and the target must rank below you. To give a specific rank: {cmd:/guild rank <player> <rank>} or click the member on the <b>Members</b> page and choose one. Nobody may be given a rank at or above your own.
+      {cmd:/guild promote <player>} moves them one step up the ladder, {cmd:/guild demote <player>} one down. You need the <i>promote and demote</i> permission and the target must rank below you. To give a specific rank: {cmd:/guild rank <player> <rank>} or click the member on the <b>Members</b> page and choose one. Nobody may be given a rank at or above your own.
   - question: What can a rank be allowed to do?
     title: Permissions
     text: |
@@ -52,9 +52,9 @@ sections:
   - question: How do I remove a member?
     title: Kicking
     text: |
-      {cmd:/guild kick <player>} — the <i>kick</i> permission and a higher rank than theirs. The member list also has a button (it asks first). They can be invited back.
+      {cmd:/guild kick <player>}. You need the <i>kick</i> permission and a higher rank than theirs. The member list also has a button (it asks first). They can be invited back.
   - question: How do I hand the guild over?
     title: Leadership
     text: |
-      {cmd:/guild leader <player>} — only the leader, to a member. Only they can give it back. The member's page offers it too, and asks first.
-      {if:guilds:succession-days > 0}If the leader has not been seen for {setting:guilds:succession-days|days}, the most senior member who has been around within that time takes over by themselves.{else}A leader who disappears stays leader: this server never replaces one.{/if}
+      {cmd:/guild leader <player>}: only the leader can do this, and only to a member. Only they can give it back. The member's page offers it too, and asks first.
+      {if:guilds:succession-days > 0}If the leader has not been seen for {setting:guilds:succession-days|days}, the most senior member who has been around within that time takes over automatically.{else}A leader who disappears stays leader: this server never replaces one.{/if}

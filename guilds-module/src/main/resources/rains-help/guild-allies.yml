@@ -2,7 +2,7 @@ id: guild-allies
 title: Allies and rivals
 summary: Ask for alliances, declare rivalries, how many allies you may have, and what each means in a fight.
 intro: |
-  Friends are guilds you have not fallen out with yet. Rivals are the other kind, and they are worth experience.
+  Ally with other guilds, or declare a guild your rival. Rival kills can earn experience.
 icon: WHITE_BANNER
 category: Guilds & teams
 order: 8
@@ -22,7 +22,7 @@ sections:
   - question: How do I end an alliance?
     title: Ending it
     text: |
-      {cmd:/guild unally <tag>} — either side, at any time, no consent needed. Both guilds are told. To ally again, both have to agree again.
+      {cmd:/guild unally <tag>}: either side can do it at any time, no consent needed. Both guilds are told. To ally again, both have to agree again.
   - question: What is a rival?
     title: Rivals
     text: |
@@ -31,8 +31,8 @@ sections:
     title: Rival kills
     when: guilds-progress:xp.rival-kill > 0
     text: |
-      Killing a member of a guild that is your rival — either side counts — earns your guild {setting:guilds-progress:xp.rival-kill|number} experience. The same victim counts only once an hour for the same killer, so friends in rival guilds cannot farm each other.
+      Killing a member of a guild that is your rival (either side counts) earns your guild {setting:guilds-progress:xp.rival-kill|number} experience. The same victim counts only once an hour for the same killer, so friends in rival guilds cannot farm each other.
   - question: Can allies hurt each other?
     title: Friendly fire
     text: |
-      Not unless the attacker's guild allows hurting allies in its choices (right-click on friendly fire). Members of one guild are protected from each other the same way. This only ever stops damage; it never allows PvP where it is forbidden.
+      Not unless the attacker's guild allows hurting allies in its choices (right-click on friendly fire). Members of one guild are protected from each other the same way. This only ever stops damage. It never allows PvP where it is forbidden.

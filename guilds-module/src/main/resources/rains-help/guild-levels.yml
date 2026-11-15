@@ -2,7 +2,7 @@ id: guild-levels
 title: Levels, experience and contracts
 summary: How a guild earns experience, what each level unlocks, weekly contracts, the weekly race and the experience boost.
 intro: |
-  Everything you do, your guild takes a cut of. Fortunately that cut is called "levels", and levels are good.
+  Members earn experience for the guild, and the guild gains levels that unlock more room, allies and perks.
 icon: EXPERIENCE_BOTTLE
 category: Guilds & teams
 order: 4
@@ -24,7 +24,7 @@ sections:
     text: |
       Per unit, for each member:
       Monster killed {setting:guilds:xp.monster|number} · boss {setting:guilds:xp.boss|number} (wither, ender dragon, elder guardian, warden) · advancement {setting:guilds:xp.advancement|number} (only those announced in chat) · minute played {setting:guilds:xp.minute|number} (not while away).
-      Ore mined {setting:guilds-progress:xp.ore|number} times its rarity (coal and copper 1, iron 2, gold 3, diamond 8, emerald 10, ancient debris 15 — never ore a player placed) · fish caught {setting:guilds-progress:xp.fish|number} · animal bred {setting:guilds-progress:xp.breed|number} · villager trade {setting:guilds-progress:xp.trade|number} · crop harvested {setting:guilds-progress:xp.harvest|number} (fully grown, or a melon or pumpkin the world grew) · enchanting level spent {setting:guilds-progress:xp.enchant-level|number} · raid won {setting:guilds-progress:xp.raid|number} · rival defeated {setting:guilds-progress:xp.rival-kill|number} (same victim counts once an hour){if:guilds-progress:xp.deposit-per-thousand > 0} · {setting:guilds-progress:xp.deposit-per-thousand|number} per thousand coins paid into the bank{/if}.
+      Ore mined {setting:guilds-progress:xp.ore|number} times its rarity (coal and copper 1, iron 2, gold 3, diamond 8, emerald 10, ancient debris 15; ore a player placed never counts) · fish caught {setting:guilds-progress:xp.fish|number} · animal bred {setting:guilds-progress:xp.breed|number} · villager trade {setting:guilds-progress:xp.trade|number} · crop harvested {setting:guilds-progress:xp.harvest|number} (fully grown, or a melon or pumpkin the world grew) · enchanting level spent {setting:guilds-progress:xp.enchant-level|number} · raid won {setting:guilds-progress:xp.raid|number} · rival defeated {setting:guilds-progress:xp.rival-kill|number} (same victim counts once an hour){if:guilds-progress:xp.deposit-per-thousand > 0} · {setting:guilds-progress:xp.deposit-per-thousand|number} per thousand coins paid into the bank{/if}.
       A value of 0 means that activity earns nothing here.
   - question: Do big guilds earn more?
     title: Size
@@ -39,7 +39,7 @@ sections:
     title: Contracts
     when: guilds-progress:contracts.enabled
     text: |
-      Each week your guild is dealt {setting:guilds-progress:contracts.per-week} goals for the whole guild — kill monsters, mine ore, fish, trade, harvest, play together and so on, never two of the same kind. They grow with the guild's size, scaled to {setting:guilds-progress:contracts.size-percent|percent}. Everything the members do counts. A finished contract pays {setting:guilds-progress:contracts.reward-percent|percent} of the experience between the guild's level and the next one, at least 50, so it stays worth doing at every level.
+      Each week your guild is dealt {setting:guilds-progress:contracts.per-week} goals for the whole guild, such as kill monsters, mine ore, fish, trade, harvest, play together. Never two of the same kind. They grow with the guild's size, scaled to {setting:guilds-progress:contracts.size-percent|percent}. Everything the members do counts. A finished contract pays {setting:guilds-progress:contracts.reward-percent|percent} of the experience between the guild's level and the next one, at least 50, so it stays worth doing at every level.
       {run:/guild contracts} shows them and when new ones come (Monday). Click a contract to tell the guild how far you are.
   - question: What is the weekly race?
     title: The crown race
