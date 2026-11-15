@@ -74,7 +74,6 @@ public final class GuildsModule implements FlexModule {
         SettingsStore<GuildsSettings> settings = context.settings(GuildsSettings.class, GuildsSettings.DEFAULTS);
         context.core().messages().defineFrom(GuildsModule.class.getResourceAsStream("messages.yml"),
                 context.chat().brand()::chatPrefix);
-        context.core().messages().seriousFrom(GuildsModule.class.getResourceAsStream("messages-serious.yml"));
         Server server = context.plugin().getServer();
         int registered = PermissionNodes.register(server);
         if (registered > 0) {
