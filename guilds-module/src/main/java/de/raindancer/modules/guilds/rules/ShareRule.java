@@ -20,7 +20,7 @@ public final class ShareRule implements IGuildsRule {
 
     @Override
     public String describe() {
-        return "a disbanded guild's bank goes to the leader, or is shared by what each put in, or evenly — "
+        return "a disbanded guild's bank goes to the leader, or is shared by what each put in, or evenly, "
                 + "always adding up to exactly what was in it";
     }
 

@@ -106,7 +106,7 @@ public final class GuildTreeMenu extends TreeMenu implements IGuildsScreen {
             case BARRED -> "<dark_red>";
         };
         List<String> lore = new ArrayList<>();
-        String kind = node.capstone() ? "Capstone" : node.choice() ? "Choice — shuts the other side" : null;
+        String kind = node.capstone() ? "Capstone" : node.choice() ? "Choice: locks the other side" : null;
         if (kind != null) {
             lore.add("<gold>" + kind);
         }

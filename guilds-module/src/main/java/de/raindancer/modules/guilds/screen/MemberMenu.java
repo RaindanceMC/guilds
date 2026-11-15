@@ -70,12 +70,12 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
         Optional<Rank> up = services.guilds().ranks().step(guild, member, true);
         Optional<Rank> down = services.guilds().ranks().step(guild, member, false);
         band(MenuLayout.WHO, 1, promote.isSuccess() && up.isPresent(), Icons.arrow(Arrow.UP, "<white>Promote",
-                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + up.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
+                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + up.map(each -> GuildMenu.escaped(each.name())).orElse("none"),
                         "", "<gray>Click to promote."),
                 promote.isSuccess() ? "They are as high as promotion goes." : why(promote),
                 click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, true)));
         band(MenuLayout.WHO, 3, promote.isSuccess() && down.isPresent(), Icons.arrow(Arrow.DOWN, "<white>Demote",
-                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + down.map(each -> GuildMenu.escaped(each.name())).orElse("—"),
+                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + down.map(each -> GuildMenu.escaped(each.name())).orElse("none"),
                         "", "<gray>Click to demote."),
                 promote.isSuccess() ? "They are on the lowest rank." : why(promote),
                 click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, false)));
@@ -110,7 +110,7 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                         "", "<gray>Click to type an amount,", "<gray>or <white>none<gray> for no limit,",
                         "<white>rank<gray> for the rank's again."),
                 limits == GuildOutcome.NOT_ALLOWED ? "Your rank cannot manage ranks." : why(limits),
-                click -> IGuildsScreen.askInWindow(services, viewer, this, "Their daily bank limit — an amount, or none", "", 16, typed ->
+                click -> IGuildsScreen.askInWindow(services, viewer, this, "Their daily bank limit: an amount, or none", "", 16, typed ->
                         IGuildsScreen.say(services, viewer, () -> services.bank().parseLimit(typed, true)
                                 .map(minor -> services.guilds().limitMember(me, member, minor))
                                 .orElse(GuildOutcome.INVALID_AMOUNT))));

@@ -23,7 +23,7 @@ public record GuildProgressSettings(
 
         @In("guilds-progress") @Title("Per ore mined") @Range(min = 0, max = 10_000)
         @Describe("Times how rare the ore is: coal and copper 1, iron 2, gold 3, diamond 8, emerald 10, ancient "
-                + "debris 15. Only ores the world made — never one a player placed.")
+                + "debris 15. Only ores the world made count, never one a player placed.")
         @Key("xp.ore") int perOre,
 
         @In("guilds-progress") @Title("Per fish caught") @Range(min = 0, max = 10_000)
@@ -80,7 +80,7 @@ public record GuildProgressSettings(
         @Key("contracts.size-percent") int contractSizePercent,
 
         @In("guilds-progress/honours") @Title("Perk points per prestige") @Range(min = 0, max = 100)
-        @Describe("On top of the point every level up brings — which a prestige keeps.")
+        @Describe("On top of the point every level up brings. A prestige keeps those points.")
         @Key("honours.points-per-prestige") int pointsPerPrestige,
 
         @In("guilds-progress/honours") @Title("Perk points per weekly crown") @Range(min = 0, max = 100)

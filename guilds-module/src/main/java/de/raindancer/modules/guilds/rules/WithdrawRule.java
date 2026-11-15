@@ -11,8 +11,8 @@ public final class WithdrawRule implements IGuildsRule {
 
     @Override
     public String describe() {
-        return "a member takes out at most what is in the bank and what their daily limit — their own, else their "
-                + "rank's — has left today";
+        return "a member takes out at most what is in the bank and what their daily limit (their own, else their "
+                + "rank's) has left today";
     }
 
     /** The daily limit that applies to this member, in minor units; negative for none. */

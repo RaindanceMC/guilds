@@ -171,7 +171,7 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
             int column = 2;
             for (ArmourPiece piece : ArmourPiece.values()) {
                 ItemStack shown = held.map(contents -> contents.armour().get(piece)).orElseGet(() -> Icons.of(
-                        Material.LIGHT_GRAY_STAINED_GLASS_PANE, "<gray>" + piece.label() + " stand <dark_gray>— empty",
+                        Material.LIGHT_GRAY_STAINED_GLASS_PANE, "<gray>" + piece.label() + " stand <dark_gray>(empty)",
                         "<dark_gray>Armour put in goes onto its stand first."));
                 toolbar(column++, shown, click -> {
                     // Asked at the click, not when the page was drawn: a rank can lose the right while it is open.
@@ -212,7 +212,7 @@ public final class GuildVaultMenu extends Menu implements IGuildsScreen {
     protected List<String> helpLines() {
         return List.of("<gray>Shift-click anything in your inventory",
                 "<gray>to put it in, or drop it onto a page.",
-                "<gray>Click a stack to take it out — if your",
+                "<gray>Click a stack to take it out, if your",
                 "<gray>rank may. Armour goes onto its stand.",
                 "<dark_gray>More rows with the Guild vault perk.");
     }

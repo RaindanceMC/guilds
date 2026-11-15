@@ -123,7 +123,7 @@ public final class GuildsModule implements FlexModule {
         context.closeWith(book.connect(context.core().bus()));
         if (!book.readable()) {
             context.log().error("The guilds database could not be read. Every guild is held as it is and no change is "
-                    + "accepted until it can be — saving now would replace everybody's guilds with nobody's.");
+                    + "accepted until it can be. Saving now would replace everybody's guilds with nobody's.");
         }
         int vaults = VaultImport.run(database, book.all(),
                 owner -> new YamlStore(context.dataFolder().resolve("vaults").resolve(owner + ".yml")), serverId,

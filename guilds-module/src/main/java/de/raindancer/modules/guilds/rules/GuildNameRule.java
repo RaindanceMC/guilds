@@ -37,8 +37,8 @@ public final class GuildNameRule implements IGuildsRule {
 
     @Override
     public String describe() {
-        return "a guild's name is " + shortestName + "–" + longestName + " characters and its tag "
-                + shortestTag + "–" + longestTag + " letters or digits, with no banned word in either";
+        return "a guild's name is " + shortestName + " to " + longestName + " characters and its tag "
+                + shortestTag + " to " + longestTag + " letters or digits, with no banned word in either";
     }
 
     /** What is wrong with the name, or empty when it may be used. */

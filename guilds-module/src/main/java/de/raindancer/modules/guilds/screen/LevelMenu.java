@@ -91,7 +91,7 @@ public final class LevelMenu extends Menu implements IGuildsScreen {
         totals.entrySet().stream().sorted(Map.Entry.<XpSource, Long>comparingByValue(Comparator.reverseOrder()))
                 .forEach(entry -> came.add("<gray>" + entry.getKey().title() + ": <white>" + entry.getValue()));
         if (came.isEmpty()) {
-            came.add("<gray>Nothing yet — go and do something.");
+            came.add("<gray>Nothing yet.");
         }
         band(MenuLayout.RULES, 2, Icons.of(Material.BOOK, "<white>Where the experience came from", came));
 

@@ -121,7 +121,7 @@ public final class PerksMenu extends Menu implements IGuildsScreen {
                             "<white>+" + services.xp().progressSettings().percentPerPrestige() + "%<gray> experience for good.",
                             "", "<gray>You will be asked first."),
                     click -> new ConfirmScreen(services, viewer, this, "<gold>Prestige the guild?",
-                            List.of("<gray>Level 1 again — members and allies", "<gray>stay, the level's room goes until",
+                            List.of("<gray>Level 1 again. Members and allies", "<gray>stay, the level's room goes until",
                                     "<gray>it is earned back."),
                             () -> IGuildsScreen.tell(services, viewer, this, () -> services.perks().prestige(me))).open());
         } else {

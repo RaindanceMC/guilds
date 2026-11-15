@@ -131,7 +131,7 @@ public final class GuildScreens {
             text.append(Component.newline())
                     .append(MINI.deserialize(colour(i + 1) + (i + 1) + ". "))
                     .append(GuildNotifier.tag(guild)).append(Component.space()).append(GuildNotifier.title(guild))
-                    .append(MINI.deserialize("<gray> — <white>" + worth));
+                    .append(MINI.deserialize("<gray>: <white>" + worth));
         }
         return text.build();
     }

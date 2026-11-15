@@ -109,7 +109,7 @@ public record GuildsSettings(
         @Key("xp.boss") int xpPerBoss,
 
         @In("guilds/levels") @Title("Experience per advancement") @Range(min = 0, max = 10_000)
-        @Describe("Only advancements announced in chat — not recipes.")
+        @Describe("Only advancements announced in chat, not recipes.")
         @Key("xp.advancement") int xpPerAdvancement,
 
         @In("guilds/levels") @Title("Experience per minute played") @Range(min = 0, max = 1000)
