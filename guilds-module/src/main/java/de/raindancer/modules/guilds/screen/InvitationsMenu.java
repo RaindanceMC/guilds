@@ -49,8 +49,8 @@ public final class InvitationsMenu extends PaginatedMenu<Invitation> implements 
         String name = guild == null ? invitation.guild() : guild.name();
         long left = Math.max(0, invitation.expires() - System.currentTimeMillis());
         return Icons.of(guild == null ? Material.PAPER : guild.colour().bannerMaterial(),
-                "<white>" + GuildMenu.escaped(name),
-                "<gray>From <white>" + GuildMenu.escaped(services.notifier().name(invitation.by())),
+                "<white>" + GuildDialog.escaped(name),
+                "<gray>From <white>" + GuildDialog.escaped(services.notifier().name(invitation.by())),
                 "<gray>Runs out in <white>" + Times.describe(Duration.ofMillis(left)),
                 "", "<gray>Click to join.", "<gray>Right click to decline.");
     }
@@ -69,7 +69,7 @@ public final class InvitationsMenu extends PaginatedMenu<Invitation> implements 
         }
         IGuildsScreen.off(services, viewer, () -> services.guilds().acceptInvitation(viewer.getUniqueId(), id), joined -> {
             services.messages().send(viewer, joined.messageKey());
-            GuildMenu.forViewer(services, viewer).open();
+            GuildDialog.forViewer(services, viewer).open();
         });
     }
 

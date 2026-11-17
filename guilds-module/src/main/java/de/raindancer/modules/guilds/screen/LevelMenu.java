@@ -60,7 +60,7 @@ public final class LevelMenu extends Menu implements IGuildsScreen {
         List<String> header = new ArrayList<>();
         header.add("<gray>Level <white>" + level + "<gray> of " + levels.topLevel());
         if (!levels.isTop(level)) {
-            header.add(GuildMenu.bar(levels.progress(guild.xp())) + " <dark_gray>" + guild.xp() + "/" + levels.toReach(level + 1));
+            header.add(GuildDialog.bar(levels.progress(guild.xp())) + " <dark_gray>" + guild.xp() + "/" + levels.toReach(level + 1));
         }
         header.add("<gray>Your bonus right now: <white>+" + services.xp().bonusPercent(viewer.getUniqueId(), guild) + "%");
         set(MenuLayout.HEADER_SUBJECT, Icons.of(Material.EXPERIENCE_BOTTLE, "<white>Level " + level, header));
@@ -132,7 +132,7 @@ public final class LevelMenu extends Menu implements IGuildsScreen {
         for (int place = 0; place < podium.size(); place++) {
             var each = podium.get(place);
             String name = services.book().guild(each.guild()).map(Guild::name).orElse(each.guild());
-            race.add("<gray>" + (place + 1) + ". <white>" + GuildMenu.escaped(name) + " <dark_gray>" + each.xp());
+            race.add("<gray>" + (place + 1) + ". <white>" + GuildDialog.escaped(name) + " <dark_gray>" + each.xp());
         }
         if (race.isEmpty()) {
             race.add("<gray>Nobody has earned anything yet this week.");

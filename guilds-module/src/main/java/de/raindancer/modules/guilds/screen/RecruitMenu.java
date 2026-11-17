@@ -45,7 +45,7 @@ public final class RecruitMenu extends PaginatedMenu<Invitation> implements IGui
 
     @Override
     protected ItemStack icon(Invitation application) {
-        return Icons.head(application.subject(), "<white>" + GuildMenu.escaped(services.notifier().name(application.subject())),
+        return Icons.head(application.subject(), "<white>" + GuildDialog.escaped(services.notifier().name(application.subject())),
                 "<gray>Wants to join.", "", "<gray>Click to let them in.", "<gray>Right click to decline.");
     }
 

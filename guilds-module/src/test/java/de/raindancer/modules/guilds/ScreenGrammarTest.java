@@ -51,7 +51,7 @@ class ScreenGrammarTest {
     @DisplayName("the scan found the screens, so a rename cannot quietly empty it")
     void theScanIsNotVacuous() {
         assertThat(screens()).extracting(Screen::name).contains(
-                "ConfirmScreen", "GuildMenu", "MemberMenu", "RankMenu", "IGuildsScreen");
+                "ConfirmScreen", "GuildDialog", "MemberMenu", "RankMenu", "IGuildsScreen");
         assertThat(drawnScreens()).isNotEmpty();
     }
 
@@ -194,9 +194,11 @@ class ScreenGrammarTest {
     @Test
     @DisplayName("the pages a command lands on explain themselves")
     void theFirstPagesHaveHelp() {
-        for (String first : List.of("GuildMenu", "NoGuildMenu", "GuildSettingsMenu")) {
-            Screen screen = screens().stream().filter(found -> found.name().equals(first)).findFirst().orElseThrow();
-            assertThat(screen.body()).as(first + " has no help button").contains("helpLines()");
-        }
+        Screen settings = screens().stream().filter(found -> found.name().equals("GuildSettingsMenu")).findFirst()
+                .orElseThrow();
+        assertThat(settings.body()).as("GuildSettingsMenu has no help button").contains("helpLines()");
+        Screen window = screens().stream().filter(found -> found.name().equals("GuildDialog")).findFirst().orElseThrow();
+        assertThat(window.body()).as("the guild window, with a guild and without, explains itself")
+                .contains("How this works").contains("GUILD_HELP").contains("NO_GUILD_HELP");
     }
 }

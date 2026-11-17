@@ -50,15 +50,15 @@ public final class BrowseMenu extends PaginatedMenu<Guild> implements IGuildsScr
         List<String> lore = new ArrayList<>();
         lore.add("<gray>Level <white>" + services.guilds().level(guild) + "<gray>, <white>" + guild.size() + "/"
                 + services.guilds().memberCap(guild) + "<gray> members");
-        lore.add("<gray>Led by <white>" + GuildMenu.escaped(services.notifier().name(guild.leader())));
+        lore.add("<gray>Led by <white>" + GuildDialog.escaped(services.notifier().name(guild.leader())));
         lore.add("<gray>Joining: <white>" + guild.joinMode().title());
         if (!guild.motd().isBlank()) {
-            lore.add("<gray>“" + GuildMenu.escaped(guild.motd()) + "”");
+            lore.add("<gray>“" + GuildDialog.escaped(guild.motd()) + "”");
         }
         lore.add("");
         lore.add(mine ? "<green>Your guild." : guild.joinMode() == JoinMode.OPEN ? "<gray>Click to join."
                 : guild.joinMode() == JoinMode.APPLY ? "<gray>Click to apply." : "<gray>By invitation only.");
-        return Icons.of(guild.colour().bannerMaterial(), "<white>" + GuildMenu.escaped(guild.emblem().prefix() + guild.name())
+        return Icons.of(guild.colour().bannerMaterial(), "<white>" + GuildDialog.escaped(guild.emblem().prefix() + guild.name())
                 + " <gray>[" + guild.tag() + "]", lore);
     }
 
@@ -70,7 +70,7 @@ public final class BrowseMenu extends PaginatedMenu<Guild> implements IGuildsScr
     @Override
     protected void onClick(Guild guild, InventoryClickEvent event) {
         if (guild.isMember(viewer.getUniqueId())) {
-            new GuildMenu(services, viewer, this).open();
+            GuildDialog.forViewer(services, viewer).open();
             return;
         }
         IGuildsScreen.say(services, viewer, () -> services.guilds().request(viewer.getUniqueId(), guild.id()));

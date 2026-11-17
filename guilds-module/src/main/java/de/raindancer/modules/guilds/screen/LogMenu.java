@@ -74,13 +74,13 @@ public final class LogMenu extends PaginatedMenu<GuildEvent> implements IGuildsS
     protected ItemStack icon(GuildEvent event) {
         List<String> lore = new ArrayList<>();
         lore.add("<dark_gray>" + Times.ago(event.at()));
-        event.actor().ifPresent(actor -> lore.add("<gray>By <white>" + GuildMenu.escaped(services.notifier().name(actor))));
-        event.target().ifPresent(target -> lore.add("<gray>About <white>" + GuildMenu.escaped(services.notifier().name(target))));
+        event.actor().ifPresent(actor -> lore.add("<gray>By <white>" + GuildDialog.escaped(services.notifier().name(actor))));
+        event.target().ifPresent(target -> lore.add("<gray>About <white>" + GuildDialog.escaped(services.notifier().name(target))));
         if (event.kind().isBank() || event.amount() != 0) {
             lore.add("<gray>Amount: <white>" + (event.kind().isBank() ? services.bank().format(event.amount()) : String.valueOf(event.amount())));
         }
         if (!event.detail().isBlank()) {
-            lore.add("<gray>" + GuildMenu.escaped(event.detail()));
+            lore.add("<gray>" + GuildDialog.escaped(event.detail()));
         }
         return Icons.of(event.kind().icon(), "<white>" + readable(event.kind()), lore);
     }

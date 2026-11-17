@@ -55,7 +55,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         String locked = "Your rank cannot change the guild.";
 
         band(MenuLayout.WHO, 1, edit, Icons.of(Material.NAME_TAG, "<white>Name",
-                        "<gray>" + GuildMenu.escaped(guild.name()), "", "<gray>Click to type a new name."), locked,
+                        "<gray>" + GuildDialog.escaped(guild.name()), "", "<gray>Click to type a new name."), locked,
                 click -> IGuildsScreen.askInWindow(services, viewer, this, "The guild's name", guild.name(), 32,
                         typed -> IGuildsScreen.say(services, viewer, () -> services.guilds().rename(me, typed))));
         band(MenuLayout.WHO, 3, edit, Icons.of(Material.OAK_SIGN, "<white>Tag",
@@ -83,7 +83,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         paint(guild, edit, false);
 
         band(MenuLayout.RULES, 2, edit, Icons.of(Material.WRITABLE_BOOK, "<white>Message of the day",
-                        guild.motd().isBlank() ? "<gray>None." : "<gray>“" + GuildMenu.escaped(guild.motd()) + "”",
+                        guild.motd().isBlank() ? "<gray>None." : "<gray>“" + GuildDialog.escaped(guild.motd()) + "”",
                         "", "<gray>Click to type it.", "<gray>Right click to clear it."), locked,
                 click -> {
                     if (click.isRightClick()) {
@@ -109,7 +109,7 @@ public final class GuildSettingsMenu extends Menu implements IGuildsScreen {
         if (leader) {
             danger(Icons.of(Material.TNT, "<red>Disband the guild",
                             "<gray>The bank is shared out first.", "", "<gray>You will be asked first."),
-                    click -> new ConfirmScreen(services, viewer, this, "<red>Disband " + GuildMenu.escaped(guild.name()) + "?",
+                    click -> new ConfirmScreen(services, viewer, this, "<red>Disband " + GuildDialog.escaped(guild.name()) + "?",
                             List.of("<gray>Every member leaves, every alliance", "<gray>ends, and the name is free again."),
                             () -> {
                                 viewer.closeInventory();

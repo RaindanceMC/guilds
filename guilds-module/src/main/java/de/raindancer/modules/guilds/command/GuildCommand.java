@@ -15,7 +15,7 @@ import de.raindancer.modules.guilds.screen.ContractsMenu;
 import de.raindancer.modules.guilds.screen.GuildVaultMenu;
 import de.raindancer.modules.guilds.screen.PerksMenu;
 import de.raindancer.modules.guilds.screen.LevelMenu;
-import de.raindancer.modules.guilds.screen.GuildMenu;
+import de.raindancer.modules.guilds.screen.GuildDialog;
 import de.raindancer.modules.guilds.service.GuildChatService;
 import de.raindancer.modules.guilds.service.GuildNotifier;
 import de.raindancer.modules.guilds.util.PermissionNodes;
@@ -123,7 +123,7 @@ public final class GuildCommand implements IGuildsCommand {
         UUID me = player.getUniqueId();
         String rest = args.length > 1 ? String.join(" ", Arrays.copyOfRange(args, 1, args.length)) : "";
         switch (first) {
-            case "" -> GuildMenu.forViewer(live, player).open();
+            case "" -> GuildDialog.forViewer(live, player).open();
             case "create", "found" -> {
                 if (!player.hasPermission(PermissionNodes.FOUND)) {
                     live.messages().send(player, GuildOutcome.NOT_ALLOWED.messageKey());

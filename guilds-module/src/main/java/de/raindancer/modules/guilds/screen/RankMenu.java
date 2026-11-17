@@ -97,7 +97,7 @@ public final class RankMenu extends Menu implements IGuildsScreen {
                 why(edit), click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().moveRank(me, rankId, false)));
         if (edit.isSuccess()) {
             danger(Icons.of(Material.BARRIER, "<red>Delete this rank", "<gray>Only a rank nobody holds.", "", "<gray>You will be asked first."),
-                    click -> new ConfirmScreen(services, viewer, this, "<red>Delete " + GuildMenu.escaped(rank.name()) + "?",
+                    click -> new ConfirmScreen(services, viewer, this, "<red>Delete " + GuildDialog.escaped(rank.name()) + "?",
                             List.of("<gray>Its permissions go with it."), () -> {
                         IGuildsScreen.off(services, viewer, () -> services.guilds().deleteRank(me, rankId), deleted -> {
                             services.messages().send(viewer, deleted.messageKey());

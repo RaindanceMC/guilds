@@ -61,7 +61,7 @@ public final class RanksMenu extends PaginatedMenu<Rank> implements IGuildsScree
         lore.add("");
         lore.add("<gray>Click for more.");
         return Icons.of(rank.isLeader() ? Material.GOLDEN_HELMET : Material.LEATHER_HELMET,
-                "<white>" + GuildMenu.escaped(rank.name()), lore);
+                "<white>" + GuildDialog.escaped(rank.name()), lore);
     }
 
     @Override

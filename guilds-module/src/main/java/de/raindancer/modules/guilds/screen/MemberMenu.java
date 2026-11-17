@@ -63,19 +63,19 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
         }
         Guild guild = found.get();
         UUID me = viewer.getUniqueId();
-        String name = GuildMenu.escaped(services.notifier().name(member));
+        String name = GuildDialog.escaped(services.notifier().name(member));
         String rank = guild.rankOf(member).map(Rank::name).orElse("?");
 
         GuildOutcome promote = services.guilds().ranks().mayActOn(guild, me, member, GuildPermission.PROMOTE);
         Optional<Rank> up = services.guilds().ranks().step(guild, member, true);
         Optional<Rank> down = services.guilds().ranks().step(guild, member, false);
         band(MenuLayout.WHO, 1, promote.isSuccess() && up.isPresent(), Icons.arrow(Arrow.UP, "<white>Promote",
-                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + up.map(each -> GuildMenu.escaped(each.name())).orElse("none"),
+                        "<gray>" + GuildDialog.escaped(rank) + " → <white>" + up.map(each -> GuildDialog.escaped(each.name())).orElse("none"),
                         "", "<gray>Click to promote."),
                 promote.isSuccess() ? "They are as high as promotion goes." : why(promote),
                 click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, true)));
         band(MenuLayout.WHO, 3, promote.isSuccess() && down.isPresent(), Icons.arrow(Arrow.DOWN, "<white>Demote",
-                        "<gray>" + GuildMenu.escaped(rank) + " → <white>" + down.map(each -> GuildMenu.escaped(each.name())).orElse("none"),
+                        "<gray>" + GuildDialog.escaped(rank) + " → <white>" + down.map(each -> GuildDialog.escaped(each.name())).orElse("none"),
                         "", "<gray>Click to demote."),
                 promote.isSuccess() ? "They are on the lowest rank." : why(promote),
                 click -> IGuildsScreen.tell(services, viewer, this, () -> services.guilds().step(me, member, false)));
@@ -84,7 +84,7 @@ public final class MemberMenu extends Menu implements IGuildsScreen {
                 why(promote), click -> {
                     List<Rank> below = guild.ranks().stream().filter(each -> services.guilds().ranks()
                             .mayAssign(guild, me, member, each).isSuccess()).toList();
-                    new OptionChooser(viewer, services.brand(), this, "Rank for " + GuildMenu.escaped(services.notifier().name(member)),
+                    new OptionChooser(viewer, services.brand(), this, "Rank for " + GuildDialog.escaped(services.notifier().name(member)),
                             below.stream().map(Rank::name).toList(), rank, chosen -> {
                         below.stream().filter(each -> each.name().equals(chosen)).findFirst().ifPresent(each ->
                                 IGuildsScreen.say(services, viewer, () -> services.guilds().setRank(me, member, each.id())));

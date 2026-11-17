@@ -47,7 +47,7 @@ public final class ContractsMenu extends PaginatedMenu<Contract> implements IGui
         return Icons.of(contract.done() ? Material.LIME_DYE : contract.source().icon(),
                 (contract.done() ? "<green>✔ " : "<white>") + contract.title(),
                 "<gray>" + contract.progress() + " of " + contract.goal() + " " + contract.source().unit(),
-                GuildMenu.bar(contract.fraction()),
+                GuildDialog.bar(contract.fraction()),
                 "<gray>Pays <white>" + contract.reward() + "<gray> experience to the guild",
                 contract.done() ? "<green>Done and paid." : "<dark_gray>New contracts in " + Times.describe(Duration.ofMillis(left)),
                 "", "<gray>Click to tell the guild how far it is.");

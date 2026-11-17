@@ -58,8 +58,8 @@ public final class MembersMenu extends PaginatedMenu<Member> implements IGuildsS
         Guild guild = guild().orElseThrow();
         String rank = guild.rankOf(member.player()).map(Rank::name).orElse("?");
         boolean online = services.notifier().online(member.player()).isPresent();
-        return Icons.head(member.player(), (online ? "<green>" : "<gray>") + GuildMenu.escaped(services.notifier().name(member.player())),
-                "<gray>Rank: <white>" + GuildMenu.escaped(rank),
+        return Icons.head(member.player(), (online ? "<green>" : "<gray>") + GuildDialog.escaped(services.notifier().name(member.player())),
+                "<gray>Rank: <white>" + GuildDialog.escaped(rank),
                 "<gray>In the guild for <white>" + Times.describe(Duration.ofMillis(Math.max(0, System.currentTimeMillis() - member.joined()))),
                 "<gray>Earned it <white>" + member.xp() + "<gray> experience",
                 "<gray>Paid in <white>" + services.bank().format(member.deposited()),

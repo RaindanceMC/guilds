@@ -47,7 +47,7 @@ public final class GuildEnchantsMenu extends PaginatedMenu<String> implements IG
 
     @Override
     protected ItemStack icon(String enchantment) {
-        String name = GuildMenu.escaped(EnchantService.name(enchantment));
+        String name = GuildDialog.escaped(EnchantService.name(enchantment));
         Optional<Guild> guild = guild();
         if (guild.isPresent() && services.enchants().unlocked(guild.get(), enchantment)) {
             return Icons.of(Material.ENCHANTED_BOOK, "<gold>" + name, "<green>Unlocked for your guild.",
@@ -75,7 +75,7 @@ public final class GuildEnchantsMenu extends PaginatedMenu<String> implements IG
 
     private ConfirmScreen confirm(String enchantment) {
         String price = services.bank().format(services.enchants().price(enchantment).minor());
-        return new ConfirmScreen(services, viewer, this, "<white>Unlock " + GuildMenu.escaped(EnchantService.name(enchantment)) + "?",
+        return new ConfirmScreen(services, viewer, this, "<white>Unlock " + GuildDialog.escaped(EnchantService.name(enchantment)) + "?",
                 List.of("<gray>The guild bank pays <white>" + price + "<gray>.", "<gray>Every member can then buy",
                         "<gray>its books at the shop."),
                 () -> unlock(enchantment));
