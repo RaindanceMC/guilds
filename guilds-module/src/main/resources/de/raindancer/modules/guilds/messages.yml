@@ -6,6 +6,7 @@ guilds:
   never-here: "<red>Nobody called <white><player></white> has ever been here."
   no-such-guild: "<red>There is no guild called <white><guild></white>. <gray>/guild list"
   welcome: "<green>Welcome to <guild><green>. <gray>/guild for its page."
+  own-guild: "<gold>Your own guild <guild><gold> is ready, free for creators. <gray>Change its name and tag any time in /guild."
   motd: "<guild> <dark_gray>»</dark_gray> <gray><motd>"
   joined: "<green><white><player></white> joined the guild."
   left: "<gray><white><player></white> left the guild."

@@ -154,11 +154,35 @@ public record GuildsSettings(
         @In("guilds") @Title("Shards to unlock an enchantment") @Range(min = 1, max = 100_000)
         @Describe("How many shards of one of Rain's enchantments the members pay in together before the guild "
                 + "has it: from then on every member can buy its books at the shop.")
-        @Key("enchants.unlock-shards") int unlockShards) {
+        @Key("enchants.unlock-shards") int unlockShards,
+
+        @In("guilds") @Title("Creators get a guild when they join")
+        @Describe("Whoever holds rainsguilds.found.free and is in no guild gets one of their own the first time they "
+                + "join: named after them, free, theirs to rename in /guild. Once per player.")
+        @Key("own-guild-for-free-founders") boolean ownGuildForFreeFounders) {
+
+    /** The settings as they were before a creator's own guild, which stays off. */
+    public GuildsSettings(
+            String foundingPrice, int foundingHours, int shortestName, int longestName, int shortestTag,
+            int longestTag, List<String> bannedWords, int mostRanks, int invitationHours, int applicationDays,
+            int successionDays, boolean tagInNames, boolean announce, long levelBase, double levelGrowth,
+            int topLevel, int membersAtFirst, int membersPerLevel, int mostMembers, int alliesAtFirst,
+            int levelsPerAlly, int homeFromLevel, double sizeDamping, int xpPerMonster, int xpPerBoss,
+            int xpPerAdvancement, int xpPerMinute, boolean bankEnabled, String bankMost, ShareRule.Mode disbandShare,
+            String officerLimit, String memberLimit, int homeWarmup, int homeCooldown, int styleFromLevel,
+            boolean sidebar, int unlockShards) {
+        this(
+                foundingPrice, foundingHours, shortestName, longestName, shortestTag, longestTag, bannedWords,
+                mostRanks, invitationHours, applicationDays, successionDays, tagInNames, announce, levelBase,
+                levelGrowth, topLevel, membersAtFirst, membersPerLevel, mostMembers, alliesAtFirst, levelsPerAlly,
+                homeFromLevel, sizeDamping, xpPerMonster, xpPerBoss, xpPerAdvancement, xpPerMinute, bankEnabled,
+                bankMost, disbandShare, officerLimit, memberLimit, homeWarmup, homeCooldown, styleFromLevel, sidebar,
+                unlockShards, false);
+    }
 
     public static final GuildsSettings DEFAULTS = new GuildsSettings(
             "0", 0, 3, 24, 2, 5, List.of(), 8, 48, 7, 30, true, true,
             1000, 1.6, 25, 8, 2, 50, 1, 5, 3, 0.35, 2, 250, 25, 1,
             true, "", ShareRule.Mode.CONTRIBUTION, "10000", "1000",
-            5, 60, 2, true, 100);
+            5, 60, 2, true, 100, false);
 }

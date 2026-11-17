@@ -229,6 +229,39 @@ public final class GuildService implements IGuildsService {
         return GuildOutcome.SUCCESS;
     }
 
+    /** Kept with the player across the network: their own guild was founded once, and is not founded again. */
+    public static final de.raindancer.core.ui.profile.PlayerSwitch OWN_GUILD_GIVEN =
+            new de.raindancer.core.ui.profile.PlayerSwitch("guilds", "own-guild-given", false);
+
+    /** Whether a guild of their own is due: the server gives them, they may found free, never had one, are in none. */
+    public boolean ownGuildDue(UUID player, boolean foundsFree, boolean givenBefore) {
+        return settings.get().ownGuildForFreeFounders() && foundsFree && !givenBefore && book.guildOf(player).isEmpty();
+    }
+
+    /**
+     * Founds a guild of their own for a creator, free: named after them and tagged with the start of their name,
+     * stepping round a name or tag already taken. They rename it in /guild like any leader.
+     */
+    public GuildOutcome foundOwn(UUID founder, String playerName) {
+        if (book.guildOf(founder).isPresent()) {
+            return GuildOutcome.ALREADY_IN_GUILD;
+        }
+        de.raindancer.modules.guilds.rules.OwnGuildRule own = new de.raindancer.modules.guilds.rules.OwnGuildRule();
+        String name = own.names(playerName).stream()
+                .filter(each -> names.name(each).isEmpty() && !book.claimed(GuildNameRule.tidy(each), null))
+                .findFirst().orElse(null);
+        String tag = own.tags(playerName, settings.get().longestTag()).stream()
+                .filter(each -> names.tag(each).isEmpty() && !book.tagTaken(each, null))
+                .findFirst().orElse(null);
+        if (name == null) {
+            return GuildOutcome.NAME_TAKEN;
+        }
+        if (tag == null) {
+            return GuildOutcome.TAG_TAKEN;
+        }
+        return found(founder, name, tag, true);
+    }
+
     private volatile java.util.function.Consumer<Guild> founded = guild -> { };
 
     /** Told of each guild founded here, from the thread that founded it — to read what its events will need. */

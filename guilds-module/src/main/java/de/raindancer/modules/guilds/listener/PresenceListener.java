@@ -5,6 +5,7 @@ import de.raindancer.modules.guilds.GuildsServices;
 import de.raindancer.modules.guilds.model.Guild;
 import de.raindancer.modules.guilds.model.GuildPermission;
 import de.raindancer.modules.guilds.service.GuildNotifier;
+import de.raindancer.modules.guilds.service.GuildService;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -39,6 +40,33 @@ public final class PresenceListener implements IGuildsListener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Scheduling.entityLater(services.plugin(), player, 60L, () -> greet(player));
+        // Later than the greeting: on a network the player's data, which says whether they had theirs, comes a
+        // moment after they join.
+        Scheduling.entityLater(services.plugin(), player, 200L, () -> ownGuild(player));
+    }
+
+    /** A creator's guild of their own, the first time they come and are in none. */
+    private void ownGuild(Player player) {
+        if (!player.isOnline()) {
+            return;
+        }
+        UUID id = player.getUniqueId();
+        boolean free = player.hasPermission(de.raindancer.modules.guilds.util.PermissionNodes.FOUND_FREE);
+        if (!services.guilds().ownGuildDue(id, free, GuildService.OWN_GUILD_GIVEN.isOn(player))) {
+            return;
+        }
+        String name = player.getName();
+        // Founding writes the database: off the server's threads, like /guild create; back on theirs to tell them.
+        Scheduling.async(services.plugin(), () -> {
+            if (!services.guilds().foundOwn(id, name).isSuccess()) {
+                return;
+            }
+            Scheduling.entity(services.plugin(), player, () -> {
+                GuildService.OWN_GUILD_GIVEN.set(player, true);
+                services.guilds().guildOf(id).ifPresent(guild ->
+                        services.messages().send(player, "guilds.own-guild", "guild", GuildNotifier.title(guild)));
+            });
+        });
     }
 
     private void greet(Player player) {

@@ -134,6 +134,63 @@ class ServicesTest {
     }
 
     @Nested
+    @DisplayName("a guild of their own, for creators")
+    class OwnGuild {
+
+        @Test
+        @DisplayName("founded free, named after them, with them leading it")
+        void founded() {
+            assertThat(guilds.foundOwn(ALICE, "Alice")).isEqualTo(GuildOutcome.SUCCESS);
+            Guild own = guild(ALICE);
+            assertThat(own.name()).isEqualTo("Alice's Guild");
+            assertThat(own.tag()).isEqualTo("ALICE");
+            assertThat(own.leader()).isEqualTo(ALICE);
+        }
+
+        @Test
+        @DisplayName("a name or tag already taken is stepped round, not failed on")
+        void taken() {
+            found(BOB, "Alice's Guild", "ALICE");
+            assertThat(guilds.foundOwn(ALICE, "Alice")).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(guild(ALICE).name()).isEqualTo("Alice's Guild 2");
+            assertThat(guild(ALICE).tag()).isEqualTo("ALIC2");
+        }
+
+        @Test
+        @DisplayName("due only while the server gives them, to who founds free, once, and when in no guild")
+        void due() {
+            guilds.settings(withOwnGuild(false));
+            assertThat(guilds.ownGuildDue(ALICE, true, false)).as("the server gives none").isFalse();
+            guilds.settings(withOwnGuild(true));
+            assertThat(guilds.ownGuildDue(ALICE, true, false)).isTrue();
+            assertThat(guilds.ownGuildDue(ALICE, false, false)).as("not a creator").isFalse();
+            assertThat(guilds.ownGuildDue(ALICE, true, true)).as("had one before").isFalse();
+            found(ALICE, "The Elves", "ELF");
+            assertThat(guilds.ownGuildDue(ALICE, true, false)).as("already in a guild").isFalse();
+        }
+
+        private GuildsSettings withOwnGuild(boolean on) {
+            GuildsSettings s = settings;
+            return new GuildsSettings(s.foundingPrice(), s.foundingHours(), s.shortestName(), s.longestName(),
+                    s.shortestTag(), s.longestTag(), s.bannedWords(), s.mostRanks(), s.invitationHours(),
+                    s.applicationDays(), s.successionDays(), s.tagInNames(), s.announce(), s.levelBase(),
+                    s.levelGrowth(), s.topLevel(), s.membersAtFirst(), s.membersPerLevel(), s.mostMembers(),
+                    s.alliesAtFirst(), s.levelsPerAlly(), s.homeFromLevel(), s.sizeDamping(), s.xpPerMonster(),
+                    s.xpPerBoss(), s.xpPerAdvancement(), s.xpPerMinute(), s.bankEnabled(), s.bankMost(),
+                    s.disbandShare(), s.officerLimit(), s.memberLimit(), s.homeWarmup(), s.homeCooldown(),
+                    s.styleFromLevel(), s.sidebar(), s.unlockShards(), on);
+        }
+
+        @Test
+        @DisplayName("somebody already in a guild gets none")
+        void alreadyInOne() {
+            Guild elves = found(BOB, "The Elves", "ELF");
+            join(elves, ALICE);
+            assertThat(guilds.foundOwn(ALICE, "Alice")).isEqualTo(GuildOutcome.ALREADY_IN_GUILD);
+        }
+    }
+
+    @Nested
     @DisplayName("founding")
     class Founding {
 
