@@ -23,6 +23,7 @@ import de.raindancer.modules.guilds.GuildProgressSettings;
 import de.raindancer.modules.guilds.model.Activity;
 import de.raindancer.modules.guilds.model.Contract;
 import de.raindancer.modules.guilds.model.XpSource;
+import de.raindancer.modules.guilds.store.EnchantBook;
 import de.raindancer.modules.guilds.store.GuildBook;
 import de.raindancer.modules.guilds.store.ProgressBook;
 import de.raindancer.modules.guilds.store.GuildsDatabase;
@@ -79,6 +80,7 @@ class ServicesTest {
     private final Map<UUID, Integer> near = new HashMap<>();
     private PerkService perks;
     private GuildsSettings settings;
+    private GuildNotifier notify;
 
     @BeforeEach
     void setUp() {
@@ -93,10 +95,10 @@ class ServicesTest {
             when(player.getName()).thenReturn("someone");
             return player;
         });
-        GuildNotifier notify = new GuildNotifier(server, new Messages(folder.resolve("messages.yml")));
+        notify = new GuildNotifier(server, new Messages(folder.resolve("messages.yml")));
         settings = new GuildsSettings("0", 0, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                 1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
-                true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, 100);
+                true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, "3000", List.of());
         guilds = new GuildService(book, notify, Log.of("guilds-test"), clock::get,
                 who -> seen.containsKey(who) ? OptionalLong.of(seen.get(who)) : OptionalLong.empty(), settings);
         bank = new BankService(book, notify, Log.of("guilds-test"), clock::get, BankService.current(), settings);
@@ -178,7 +180,7 @@ class ServicesTest {
                     s.alliesAtFirst(), s.levelsPerAlly(), s.homeFromLevel(), s.sizeDamping(), s.xpPerMonster(),
                     s.xpPerBoss(), s.xpPerAdvancement(), s.xpPerMinute(), s.bankEnabled(), s.bankMost(),
                     s.disbandShare(), s.officerLimit(), s.memberLimit(), s.homeWarmup(), s.homeCooldown(),
-                    s.styleFromLevel(), s.sidebar(), s.unlockShards(), on);
+                    s.styleFromLevel(), s.sidebar(), s.enchantPrice(), s.enchantPrices(), on);
         }
 
         @Test
@@ -257,7 +259,7 @@ class ServicesTest {
         private GuildsSettings withPrice(String price, int hours) {
             return new GuildsSettings(price, hours, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                     1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
-                    true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, 100);
+                    true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, "3000", List.of());
         }
     }
 
@@ -401,6 +403,101 @@ class ServicesTest {
                 guilds.createRank(ALICE, "Extra " + each);
             }
             assertThat(guilds.createRank(ALICE, "One too many")).isEqualTo(GuildOutcome.TOO_MANY_RANKS);
+        }
+    }
+
+    @Nested
+    @DisplayName("unlocking Rain's enchantments from the bank")
+    class Enchantments {
+
+        private static final String FLIGHT = "rainsenchants:flight";
+
+        /** The default price, in minor units of the test economy's currency. */
+        private final long price = de.raindancer.core.social.economy.Fees.amount("3000").minor();
+
+        private EnchantBook unlocks;
+        private EnchantService enchants;
+
+        @BeforeEach
+        void open() {
+            unlocks = new EnchantBook(database);
+            unlocks.load();
+            enchants = new EnchantService(book, unlocks, bank, notify, () -> settings);
+        }
+
+        private Guild fundedGuild(long minor) {
+            Guild elves = found(ALICE, "Elves", "ELF");
+            economy.give(ALICE, minor);
+            assertThat(bank.deposit(ALICE, Money.of(minor))).isEqualTo(GuildOutcome.SUCCESS);
+            return elves;
+        }
+
+        @Test
+        @DisplayName("the price leaves the bank, every member has the enchantment, and the bank's statement says why")
+        void unlocks() {
+            Guild elves = fundedGuild(price + 2000);
+            join(elves, BOB);
+            assertThat(enchants.unlocked(BOB, FLIGHT)).isFalse();
+
+            assertThat(enchants.unlock(ALICE, FLIGHT)).isEqualTo(GuildOutcome.SUCCESS);
+
+            assertThat(guild(ALICE).bank()).isEqualTo(2000L);
+            assertThat(enchants.unlocked(BOB, FLIGHT)).isTrue();
+            assertThat(enchants.unlocked(DAVE, FLIGHT)).as("somebody in no guild").isFalse();
+            book.flush();
+            assertThat(book.events(guild(ALICE).id(), Set.of(GuildEvent.Kind.WITHDRAWAL), 10, 0))
+                    .anySatisfy(event -> assertThat(event.amount()).isEqualTo(price));
+            assertThat(enchants.unlock(ALICE, FLIGHT)).as("not twice, and not paid twice")
+                    .isEqualTo(GuildOutcome.ALREADY_UNLOCKED);
+            assertThat(guild(ALICE).bank()).isEqualTo(2000L);
+        }
+
+        @Test
+        @DisplayName("a bank that holds too little pays nothing and unlocks nothing")
+        void poor() {
+            fundedGuild(price - 1);
+            assertThat(enchants.unlock(ALICE, FLIGHT)).isEqualTo(GuildOutcome.BANK_EMPTY);
+            assertThat(guild(ALICE).bank()).isEqualTo(price - 1);
+            assertThat(enchants.unlocked(ALICE, FLIGHT)).isFalse();
+        }
+
+        @Test
+        @DisplayName("only ranks that may pay from the bank spend it; somebody in no guild cannot")
+        void permission() {
+            Guild elves = fundedGuild(price + 2000);
+            join(elves, BOB);
+            assertThat(enchants.unlock(BOB, FLIGHT)).isEqualTo(GuildOutcome.NOT_ALLOWED);
+            assertThat(enchants.unlock(DAVE, FLIGHT)).isEqualTo(GuildOutcome.NO_GUILD);
+            assertThat(guild(ALICE).bank()).isEqualTo(price + 2000);
+        }
+
+        @Test
+        @DisplayName("an enchantment that is not Rain's is refused")
+        void foreign() {
+            fundedGuild(price + 2000);
+            assertThat(enchants.unlock(ALICE, "minecraft:mending")).isEqualTo(GuildOutcome.NOT_ALLOWED);
+            assertThat(guild(ALICE).bank()).isEqualTo(price + 2000);
+        }
+
+        @Test
+        @DisplayName("an unlock another server recorded first costs this guild nothing")
+        void raced() {
+            Guild elves = fundedGuild(price + 2000);
+            unlocks.unlock(elves.id().value(), FLIGHT);
+            assertThat(enchants.unlock(ALICE, FLIGHT)).isEqualTo(GuildOutcome.ALREADY_UNLOCKED);
+            assertThat(guild(ALICE).bank()).isEqualTo(price + 2000);
+        }
+
+        @Test
+        @DisplayName("free when the owner sets the price to 0, even with an empty bank")
+        void free() {
+            found(ALICE, "Elves", "ELF");
+            GuildsSettings free = new GuildsSettings("0", 0, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
+                    1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
+                    true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, true, "0", List.of());
+            EnchantService cheap = new EnchantService(book, unlocks, bank, notify, () -> free);
+            assertThat(cheap.unlock(ALICE, FLIGHT)).isEqualTo(GuildOutcome.SUCCESS);
+            assertThat(cheap.unlocked(ALICE, FLIGHT)).isTrue();
         }
     }
 
@@ -847,7 +944,7 @@ class ServicesTest {
             found(ALICE, "Elves", "ELF");
             GuildsSettings off = new GuildsSettings("0", 0, 3, 24, 2, 5, List.of(), 6, 48, 7, 30, true, false,
                     1000, 1.5, 10, 3, 1, 10, 1, 2, 2, 0, 2, 250, 25, 1,
-                    true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, false, 100);
+                    true, "", ShareRule.Mode.CONTRIBUTION, "1000", "100", 0, 0, 2, false, "3000", List.of());
             assertThat(new GuildSidebar(book, guilds, bank::format, () -> off).lines(ALICE)).isEmpty();
         }
     }

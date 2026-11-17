@@ -15,7 +15,8 @@ class GuildsSettingsTest {
     @DisplayName("founding costs nothing by default, so a server needs no economy")
     void money() {
         assertThat(defaults.foundingPrice()).isEqualTo("0");
-        assertThat(defaults.unlockShards()).isEqualTo(100);
+        assertThat(defaults.enchantPrice()).isEqualTo("3000");
+        assertThat(defaults.enchantPrices()).containsExactly("flight 6000", "launch 6000", "soulbound 6000");
         assertThat(defaults.bankEnabled()).isTrue();
         assertThat(defaults.bankMost()).isEmpty();
         assertThat(defaults.disbandShare()).isEqualTo(ShareRule.Mode.CONTRIBUTION);
@@ -29,6 +30,22 @@ class GuildsSettingsTest {
         assertThat(GuildsSettings.class.getRecordComponents()).filteredOn(each -> each.getName().endsWith("Limit"))
                 .extracting(each -> each.getAnnotation(de.raindancer.core.data.settings.Key.class).value())
                 .containsExactlyInAnyOrder("bank.officer-daily-limit", "bank.member-daily-limit");
+    }
+
+    @Test
+    @DisplayName("a settings file still holding the shard price loads, and the old key is not a setting any more")
+    void oldShardKey(@org.junit.jupiter.api.io.TempDir java.nio.file.Path folder) throws java.io.IOException {
+        java.nio.file.Path file = folder.resolve("guilds.yml");
+        java.nio.file.Files.writeString(file, "enchants:\n  unlock-shards: 100\n  unlock-price: \"4500\"\n");
+        de.raindancer.core.data.settings.SettingsStore<GuildsSettings> store =
+                new de.raindancer.core.data.settings.SettingsStore<>(
+                        de.raindancer.core.data.settings.SettingsSchema.of(GuildsSettings.class, GuildsSettings.DEFAULTS), file);
+        store.load();
+        assertThat(store.current().enchantPrice()).isEqualTo("4500");
+        assertThat(store.current().foundingPrice()).isEqualTo("0");
+        assertThat(GuildsSettings.class.getRecordComponents())
+                .extracting(each -> each.getAnnotation(de.raindancer.core.data.settings.Key.class).value())
+                .doesNotContain("enchants.unlock-shards");
     }
 
     @Test

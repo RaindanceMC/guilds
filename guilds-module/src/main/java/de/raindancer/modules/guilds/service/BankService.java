@@ -309,6 +309,50 @@ public final class BankService implements IGuildsService {
     }
 
     /**
+     * The guild pays for something all its members get (an unlocked enchantment) straight from the bank, for ranks
+     * allowed to pay: no daily limit, all or nothing, written in the guild's log. A price of nothing needs no bank.
+     */
+    public GuildOutcome spend(Guild guild, UUID actor, Money amount, String reason) {
+        GuildOutcome may = ranks.may(guild, actor, GuildPermission.PAY);
+        if (!may.isSuccess()) {
+            return may;
+        }
+        if (amount == null || amount.minor() < 0) {
+            return GuildOutcome.INVALID_AMOUNT;
+        }
+        if (amount.minor() == 0) {
+            return GuildOutcome.SUCCESS;
+        }
+        if (!settings.bankEnabled()) {
+            return GuildOutcome.SWITCHED_OFF;
+        }
+        AtomicReference<GuildOutcome> refused = new AtomicReference<>();
+        GuildOutcome debited = book.update(guild.id(), now -> {
+            if (amount.minor() > now.bank()) {
+                refused.set(GuildOutcome.BANK_EMPTY);
+                return now;
+            }
+            return now.withBank(now.bank() - amount.minor());
+        });
+        GuildOutcome outcome = refused.get() != null ? refused.get() : debited;
+        if (!outcome.isSuccess()) {
+            return outcome;
+        }
+        book.log(GuildEvent.of(guild.id().value(), clock.getAsLong(), GuildEvent.Kind.WITHDRAWAL, actor, null,
+                amount.minor(), reason));
+        notify.holding(guild, GuildPermission.VIEW_LOG, "guilds.bank.paid-for-told",
+                "amount", format(amount.minor()), "reason", reason);
+        return GuildOutcome.SUCCESS;
+    }
+
+    /** Puts back what {@link #spend} took, when what it paid for could not be done. */
+    public void refund(Guild guild, Money amount) {
+        if (amount != null && amount.isPositive()) {
+            book.update(guild.id(), now -> now.withBank(now.bank() + amount.minor()));
+        }
+    }
+
+    /**
      * The bank as Core's treasury for the guild's groups: pays what the guild's officers agreed to (a claim's upkeep)
      * straight from the bank, all or nothing, written in the guild's log. Nobody's daily limit applies — no member
      * takes it.

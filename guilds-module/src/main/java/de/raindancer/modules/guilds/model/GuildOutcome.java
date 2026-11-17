@@ -71,7 +71,9 @@ public enum GuildOutcome {
     NOT_TOP_LEVEL,
     VAULT_NOT_EMPTY,
     VAULT_FULL,
-    VAULT_UNREADABLE;
+    VAULT_UNREADABLE,
+    /** One of Rain's enchantments the guild already has. */
+    ALREADY_UNLOCKED;
 
     public boolean isSuccess() {
         return this == SUCCESS || this == ASKED;

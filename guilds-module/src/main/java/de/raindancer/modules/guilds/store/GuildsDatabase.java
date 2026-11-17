@@ -196,7 +196,7 @@ public final class GuildsDatabase {
             """
             ALTER TABLE member ADD COLUMN seen INTEGER NOT NULL DEFAULT 0
             """,
-            // Shards of Rain's enchantments paid in, per guild and enchantment; unlocked once enough came in.
+            // Rain's enchantments per guild; unlocked = 1 once the guild has them (it paid shards for it once, money now).
             """
             CREATE TABLE guild_shard (
                 guild TEXT NOT NULL,

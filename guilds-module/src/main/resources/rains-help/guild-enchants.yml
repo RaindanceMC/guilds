@@ -1,24 +1,24 @@
 id: guild-enchants
 title: Guild enchantments and attendants
-summary: Unlock Rain's enchantments for the whole guild with shards, and place a banker, vault keeper or enchanter.
+summary: Unlock Rain's enchantments for the whole guild from its bank, and place a banker, vault keeper or enchanter.
 intro: |
-  Some enchantments are only unlocked by guilds, with shards the members pay in together.
+  Some enchantments are only unlocked by guilds, paid from the guild bank.
 icon: ENCHANTED_BOOK
 category: Guilds & teams
 order: 9
 module: guilds
-aliases: [shards, enchants, enchanter, banker, keeper, attendants, npc]
-keywords: [shard, unlock, books, enchantment, shop, vault keeper, banker, place, npc]
+aliases: [enchants, enchanter, banker, keeper, attendants, npc]
+keywords: [unlock, price, bank, books, enchantment, shop, vault keeper, banker, place, npc]
 related: [guilds, guild-bank, guild-perks]
 sections:
   - question: How do guild enchantments work?
     title: Unlocking
     text: |
-      Rain's special enchantments are not sold to individuals. Members <b>pay shards</b> of an enchantment in together; once the guild has paid in {setting:guilds:enchants.unlock-shards|number} shards of one, it is unlocked, and every member can buy its books at the shop (with shards and a little money). Shards drop in the shard world.
-  - question: How do I pay shards in?
-    title: Paying shards
+      Rain's special enchantments are not sold to individuals. A guild unlocks one by paying {setting:guilds:enchants.unlock-price|money} from its bank (some cost more); from then on every member can buy its books at the shop.
+  - question: How do I unlock one?
+    title: Paying for it
     text: |
-      Open {run:/guild shards} to see every enchantment, how far the guild is, and how many shards <i>you</i> carry; click one to pay them in. {cmd:/guild shards add} pays in everything you carry that the guild still needs, never more than an enchantment needs. If the guild's records cannot be written, your shards come back to you.
+      Open {run:/guild enchants} to see every enchantment, what it costs and what the bank holds; click a locked one and confirm. Only ranks allowed to <i>pay from the bank</i> may, since it is the guild's money. If the bank does not hold the price, or the guild's records cannot be written, nothing is taken.
   - question: What are the guild's attendants?
     title: Attendants
     text: |

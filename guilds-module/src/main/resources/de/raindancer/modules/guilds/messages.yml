@@ -83,8 +83,6 @@ guilds:
     race-head: "<gold>This week's guild race:"
     race-line: "<gray><white>#<place></white> <guild> <dark_gray>: <xp> experience"
     race-empty: "<gray>Nobody has earned anything yet this week. Be first."
-  enchants:
-    not-here: "<gray>Guilds don't unlock enchantments with shards on this server."
   npc:
     placed: "<green>A <white><npc></white> stands here now. Members right click them. <gray>/guild admin npc remove takes them away."
     removed: "<green>The nearest attendant is gone."
@@ -112,7 +110,7 @@ guilds:
   log:
     line: "<gray><white><what></white> <dark_gray>(<when>)</dark_gray> <detail>"
   usage:
-    all: "<gray>/guild<dark_gray>: the guild page · <gray>/guild create <name> <tag> · info · list · level · contracts · perks · shards [add] · vault · crown · invite · join · leave · c <message> · home · bank · pay · ally"
+    all: "<gray>/guild<dark_gray>: the guild page · <gray>/guild create <name> <tag> · info · list · level · contracts · perks · enchants · vault · crown · invite · join · leave · c <message> · home · bank · pay · ally"
     found: "<gray>/guild create <name> <tag> <dark_gray>(e.g. /guild create The Elves ELF)"
     player: "<gray>Name a player."
     rank: "<gray>/guild rank <player> <rank>"
@@ -130,13 +128,7 @@ guilds:
     boost: "<gray>/guild admin boost <percent> <time> <dark_gray>(e.g. 50 2h) or <gray>/guild admin boost off"
   style-unreadable: "<red><problem> <gray>Colours are chat colours (gold, aqua…) or #hex codes."
   style-locked: "<red>Your guild paints its tag and name from level <white><level></white>, or right away when its leader has Prime."
-  enchant-no-guild: "<red>Only a guild can unlock Rain's enchantments. Join one, or found your own."
-  enchant-no-shards: "<red>You carry no <white><name></white> shards."
-  enchant-already: "<gray><white><name></white> is unlocked for your guild already. Buy its books at the shop."
-  enchant-paid: "<light_purple>You paid in <white><amount></white> <name> shard(s). <gray><paid>/<needed> towards unlocking it."
-  enchant-unlocked: "<gold>Your guild unlocked <white><name></white>. <gray>Every member can buy its books at the shop now."
-  enchant-failed: "<red>The guild's records could not be written just now. Your shards are back with you."
-  enchant-nothing-to-pay: "<gray>You carry no shards your guild still needs. <dark_gray>Its shards drop in the shard world."
+  enchant-unlocked: "<gold><player> unlocked <white><name></white> for your guild, paid from the bank. <gray>Every member can buy its books at the shop now."
   outcome:
     success: "<green>Done."
     asked: "<green>Request sent. <gray>They have been told."
@@ -198,3 +190,4 @@ guilds:
     vault-not-empty: "<red>Empty the guild vault first. Disbanding would destroy what is in it."
     vault-full: "<red>The vault is full."
     vault-unreadable: "<red>The guild vault's file could not be read, so nothing goes in and the guild cannot be disbanded until staff have looked at it."
+    already-unlocked: "<gray>Your guild has that enchantment already. Buy its books at the shop."

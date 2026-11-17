@@ -1,6 +1,5 @@
 package de.raindancer.modules.guilds;
 
-import de.raindancer.core.content.enchant.EnchantUnlocks;
 import java.util.function.BooleanSupplier;
 import de.raindancer.core.social.desk.DeskOffer;
 import de.raindancer.core.social.desk.ServiceDesk;
@@ -22,7 +21,7 @@ import java.util.function.Supplier;
 
 /**
  * The guild's attendants: a guild banker (the guild bank), a vault keeper (the guild vault) and a guild enchanter
- * (the enchantments the guild unlocks with shards). Each is a RainsCore desk with this one offer, so talking to them
+ * (the enchantments the guild unlocks from its bank). Each is a RainsCore desk with this one offer, so talking to them
  * opens the screen straight away.
  */
 public final class GuildDesks {
@@ -43,10 +42,9 @@ public final class GuildDesks {
                         "<gray>Pay in or take out.", this::bank)),
                 new Offered(ServiceDesk.GUILD_VAULT, new Offer(Material.ENDER_CHEST, "<white>The guild vault",
                         "<gray>The chest every member shares.", this::vault)),
-                // only while shards can be earned here
                 new Offered(ServiceDesk.GUILD_ENCHANTS, new Offer(Material.ENCHANTED_BOOK,
-                        "<white>The guild's enchantments", "<gray>Pay in shards, unlock books for everybody.",
-                        this::enchants, EnchantUnlocks::shardsOffered)));
+                        "<white>The guild's enchantments", "<gray>Unlock books for everybody.",
+                        this::enchants)));
     }
 
     /** The desk staff mean by {@code bank}, {@code vault} or {@code enchants}. */

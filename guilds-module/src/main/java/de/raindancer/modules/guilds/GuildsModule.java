@@ -22,8 +22,8 @@ import de.raindancer.modules.guilds.service.HomeService;
 import de.raindancer.modules.guilds.service.RelationService;
 import de.raindancer.modules.guilds.service.XpService;
 import de.raindancer.modules.guilds.store.GuildBook;
-import de.raindancer.modules.guilds.store.ShardBook;
-import de.raindancer.modules.guilds.service.ShardService;
+import de.raindancer.modules.guilds.store.EnchantBook;
+import de.raindancer.modules.guilds.service.EnchantService;
 import de.raindancer.modules.guilds.store.GuildMigration;
 import de.raindancer.modules.guilds.store.VaultImport;
 import de.raindancer.modules.guilds.store.VaultStore;
@@ -54,7 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class GuildsModule implements FlexModule {
 
-    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.35.1")
+    private static final ModuleInfo INFO = ModuleInfo.of("guilds", "Guilds", "0.36.0")
             .describedAs("Guilds founded by players: a ladder of ranks with their own permissions, a bank with daily "
                     + "limits, levels earned by playing that unlock members, allies and a guild home, alliances and "
                     + "rivals, a skill tree of perks bought with the guild's levels, guild, officer and ally chat, and the guild's tag in "
@@ -215,16 +215,16 @@ public final class GuildsModule implements FlexModule {
         fire.open(context.core().combat(), context.plugin().getName());
         context.closeWith(() -> fire.close(context.core().combat()));
 
-        ShardBook shardBook = new ShardBook(database);
-        if (!shardBook.load()) {
-            context.log().error("The guilds' enchantment shards could not be read; no enchantment counts as unlocked "
+        EnchantBook enchantBook = new EnchantBook(database);
+        if (!enchantBook.load()) {
+            context.log().error("The guilds' unlocked enchantments could not be read; no enchantment counts as unlocked "
                     + "until they can be.");
         }
-        context.closeWith(shardBook.connect(context.core().bus()));
-        book.onDisband(id -> Scheduling.async(context.plugin(), () -> shardBook.forget(id)));
-        ShardService shards = new ShardService(context.plugin(), book, shardBook, notifier, settings::current);
-        de.raindancer.core.content.enchant.EnchantUnlocks.provide(context.plugin(), shards);
-        context.closeWith(() -> de.raindancer.core.content.enchant.EnchantUnlocks.retract(shards));
+        context.closeWith(enchantBook.connect(context.core().bus()));
+        book.onDisband(id -> Scheduling.async(context.plugin(), () -> enchantBook.forget(id)));
+        EnchantService enchants = new EnchantService(book, enchantBook, bank, notifier, settings::current);
+        de.raindancer.core.content.enchant.EnchantUnlocks.provide(context.plugin(), enchants);
+        context.closeWith(() -> de.raindancer.core.content.enchant.EnchantUnlocks.retract(enchants));
 
         GuildNpcPlacing npcs = new GuildNpcPlacing(context.plugin(),
                 new de.raindancer.core.data.store.YamlStore(context.dataFolder().resolve("npcs.yml")));
@@ -233,7 +233,7 @@ public final class GuildsModule implements FlexModule {
         context.listener(npcs);
         GuildsServices services = new GuildsServices(context.plugin(), server, context.core(), context.log(),
                 context.core().messages(), context.chat().brand(), settings::current, book, notifier, guilds, bank,
-                relations, xp, homes, chat, positions, perks, shards, npcs);
+                relations, xp, homes, chat, positions, perks, enchants, npcs);
         SettingsStore<GuildNpcSettings> npcSettings = context.settings(GuildNpcSettings.class, GuildNpcSettings.DEFAULTS);
         GuildDesks.skins(npcSettings.current());
         npcSettings.onChange(GuildDesks::skins);

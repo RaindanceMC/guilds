@@ -43,7 +43,6 @@ public record GuildEvent(String guild, long at, Kind kind, Optional<UUID> actor,
         PERK(Material.NETHER_STAR),
         PRESTIGE(Material.BEACON),
         CROWN(Material.GOLDEN_HELMET),
-        SHARDS(Material.ECHO_SHARD),
         ENCHANTMENT(Material.ENCHANTED_BOOK);
 
         private final Material icon;

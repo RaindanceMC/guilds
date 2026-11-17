@@ -1,6 +1,5 @@
 package de.raindancer.modules.guilds.command;
 
-import de.raindancer.core.content.enchant.EnchantUnlocks;
 import de.raindancer.core.platform.command.PlayerTargets;
 import de.raindancer.core.platform.util.Scheduling;
 import de.raindancer.core.social.team.TeamId;
@@ -49,11 +48,11 @@ public final class GuildCommand implements IGuildsCommand {
     static final List<String> SUBCOMMANDS = List.of("create", "info", "list", "invite", "accept", "decline", "join",
             "leave", "kick", "promote", "demote", "rank", "leader", "chat", "c", "officer", "oc", "ally-chat", "ac",
             "home", "sethome", "bank", "deposit", "withdraw", "pay", "ally", "unally", "rival", "unrival", "rename", "tag", "style",
-            "motd", "joining", "disband", "level", "contracts", "perks", "vault", "prestige", "crown", "shards", "npc");
+            "motd", "joining", "disband", "level", "contracts", "perks", "vault", "prestige", "crown", "enchants", "npc");
     static final List<String> STAFF = List.of("admin");
 
     /** Subcommands that open a screen or touch the player or the world: they stay on the thread they came on. */
-    private static final Set<String> THREAD_BOUND = Set.of("", "info", "list", "top", "level", "xp", "shards", "enchants",
+    private static final Set<String> THREAD_BOUND = Set.of("", "info", "list", "top", "level", "xp", "enchants",
             "perks", "vault", "contracts", "crown", "race", "chat", "c", "officer", "oc", "ally-chat", "ac", "home", "npc");
 
     private final Supplier<GuildsServices> services;
@@ -145,13 +144,9 @@ public final class GuildCommand implements IGuildsCommand {
                     new LevelMenu(live, player, null).open();
                 }
             }
-            case "shards", "enchants" -> {
-                if (!EnchantUnlocks.shardsOffered()) {
-                    live.messages().send(player, "guilds.enchants.not-here");
-                } else if (live.guilds().guildOf(me).isEmpty()) {
+            case "enchants" -> {
+                if (live.guilds().guildOf(me).isEmpty()) {
                     say(live, player, GuildOutcome.NO_GUILD);
-                } else if (rest.equalsIgnoreCase("add")) {
-                    live.shards().payInAll(player, () -> { });
                 } else {
                     new de.raindancer.modules.guilds.screen.GuildEnchantsMenu(live, player, null).open();
                 }
@@ -652,7 +647,6 @@ public final class GuildCommand implements IGuildsCommand {
             }
         } else if (args.length == 2) {
             switch (args[0].toLowerCase(Locale.ROOT)) {
-                case "shards", "enchants" -> options.add("add");
                 case "bank" -> options.addAll(List.of("available", "payin", "payout", "limit"));
                 case "withdraw" -> options.add("all");
                 case "invite", "kick", "promote", "demote", "rank", "leader", "pay" ->
