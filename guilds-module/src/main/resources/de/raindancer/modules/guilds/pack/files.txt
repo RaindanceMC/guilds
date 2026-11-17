@@ -1,3 +1,4 @@
+pack.mcmeta
 assets/rainsguilds/textures/font/tree/frame_locked.png
 assets/rainsguilds/textures/font/tree/frame_open.png
 assets/rainsguilds/textures/font/tree/frame_owned.png
